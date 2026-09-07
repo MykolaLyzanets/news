@@ -1,3 +1,10 @@
-.home
-  h1 News
-  p Новий проєкт
+.paper
+  - if @lead
+    = render 'home/front'
+    - if @business_posts.present?
+      = render 'home/business'
+    - if @most_posts.present? || @lead
+      = render 'home/most'
+  - else
+    .container
+      p.cat-feed__empty No stories yet.

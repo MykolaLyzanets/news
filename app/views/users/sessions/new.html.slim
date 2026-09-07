@@ -1,28 +1,23 @@
-doctype html
-html
-  head
-    title News · Login
-    meta name="viewport" content="width=device-width,initial-scale=1"
-    = csrf_meta_tags
-    = stylesheet_link_tag "css/application.min", "data-turbo-track": "reload"
-  body
-    main style="max-width:420px;margin:4rem auto;padding:0 1rem;"
-      h1 Вхід
-      - if notice
-        p.notice = notice
-      - if alert
-        p.alert = alert
-
-      = form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
-        div
-          = f.label :email
-          = f.email_field :email, autofocus: true, autocomplete: 'email', required: true
-        div
-          = f.label :password
-          = f.password_field :password, autocomplete: 'current-password', required: true
-        - if devise_mapping.rememberable?
-          div
-            = f.check_box :remember_me
-            = f.label :remember_me, 'Запамʼятати'
-        div
-          = f.submit 'Увійти'
+section.auth-card
+  p.auth__kicker Staff desk
+  h1.auth-card__title Sign in
+  p.auth-card__dek Enter your desk credentials to reach the newsroom.
+  - if notice
+    p.auth-card__ok = notice
+  - if alert
+    p.auth-card__bad = alert
+  = form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f|
+    label.auth-form__field
+      span Email
+      = f.email_field :email, autofocus: true, autocomplete: 'email', required: true, placeholder: 'name@thedispatch.com'
+    label.auth-form__field
+      span Password
+      = f.password_field :password, autocomplete: 'current-password', required: true
+    - if devise_mapping.rememberable?
+      label.auth-form__check
+        = f.check_box :remember_me
+        span Remember me
+    = f.submit 'Sign in', class: 'auth-form__btn'
+  - if devise_mapping.recoverable?
+    p.auth-card__links
+      = link_to 'Forgot your password?', new_password_path(resource_name)

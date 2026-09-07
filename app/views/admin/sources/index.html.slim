@@ -1,0 +1,43 @@
+.admin__row
+  h1.admin__h News Sources
+  div
+    = button_to 'Fetch all', fetch_all_admin_sources_path, method: :post, class: 'admin__btn'
+    =< link_to 'New Source', new_admin_source_path, class: 'admin__btn admin__btn--ghost'
+table.admin__table
+  thead
+    tr
+      th Name
+      th Category
+      th Feed URL
+      th Parser
+      th Language
+      th Active
+      th Last fetched
+      th Last success
+      th Last error
+      th
+  tbody
+    - @sources.each do |source|
+      tr class=('is-off' unless source.active?)
+        td = admin_source_name(source)
+        td = source.category.name
+        td.admin__clip = source.feed_url
+        td = source.parser_type
+        td = source.language
+        td
+          - if source.active?
+            span.admin__badge.admin__badge--live On
+          - else
+            span.admin__badge.admin__badge--off Off
+        td = source.last_fetched_at&.strftime('%b %-d %H:%M')
+        td = source.last_success_at&.strftime('%b %-d %H:%M')
+        td.admin__clip = source.last_error
+        td.admin__actions
+          = button_to 'Test', test_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--small'
+          = button_to 'Fetch', fetch_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--small'
+          = link_to 'Edit', edit_admin_source_path(source)
+          - if source.active?
+            = button_to 'Make inactive', toggle_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--ghost admin__btn--small'
+          - else
+            = button_to 'Make active', toggle_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--good admin__btn--small'
+          = button_to 'Delete', admin_source_path(source), method: :delete, class: 'admin__link-bad', form: { data: { turbo_confirm: 'Delete?' } }

@@ -1,0 +1,154 @@
+.auth-body {
+  min-height: 100vh;
+  background: var(--paper);
+}
+
+.auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 3.2rem 1.25rem 2rem;
+}
+
+.auth__brand {
+  display: inline-block;
+  margin-bottom: 2.2rem;
+  text-align: center;
+}
+
+.auth__logo {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+
+.auth__rule {
+  display: block;
+  height: 0.32rem;
+  margin-top: 0.5rem;
+  border-top: 2px solid #111;
+  border-bottom: 1px solid #111;
+}
+
+.auth__kicker {
+  margin-bottom: 0.45rem;
+  color: var(--red);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.auth-card {
+  width: min(26rem, 100%);
+  padding: 1.8rem 1.7rem 1.6rem;
+  background: #fff;
+  border: 1px solid var(--line);
+}
+
+.auth-card__title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.auth-card__dek {
+  margin: 0.45rem 0 1.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.auth-card__ok,
+.auth-card__bad {
+  margin-bottom: 0.9rem;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.82rem;
+}
+
+.auth-card__ok {
+  background: #e8f7ef;
+  color: #146c43;
+}
+
+.auth-card__bad {
+  background: #fdeceb;
+  color: #9b1c1c;
+}
+
+.auth-form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.auth-form__field span {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.auth-form__field input[type="email"],
+.auth-form__field input[type="password"] {
+  width: 100%;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid #c8c4b8;
+  background: #fff;
+}
+
+.auth-form__field input:focus {
+  outline: 2px solid #111;
+  outline-offset: 1px;
+}
+
+.auth-form__check {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: #333;
+  font-size: 0.86rem;
+}
+
+.auth-form__btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.auth-form__btn:hover {
+  background: #2a2a2a;
+}
+
+.auth-card__links {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.auth-card__links a {
+  color: var(--red);
+  font-weight: 600;
+}
+
+.auth__copy {
+  margin-top: auto;
+  padding-top: 2.4rem;
+  color: #8a8a8a;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

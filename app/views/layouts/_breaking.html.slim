@@ -1,0 +1,8 @@
+- item = breaking_post
+- if item
+  .breaking
+    span.breaking__badge Breaking
+    p.breaking__text
+      = link_to item.title, article_path(item)
+      span.breaking__arrow ›
+    time.breaking__time = story_time(item)

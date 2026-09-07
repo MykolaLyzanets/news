@@ -6,3 +6,9 @@ import { application } from "./application"
 
 import RemovalsController from "./removals_controller"
 application.register("removals", RemovalsController)
+
+import TabsController from "./tabs_controller"
+application.register("tabs", TabsController)
+
+import SectionTabsController from "./section_tabs_controller"
+application.register("section-tabs", SectionTabsController)

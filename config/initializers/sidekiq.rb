@@ -11,7 +11,12 @@ Sidekiq.configure_server do |config|
   config.on(:startup) do
     schedule_file = Rails.root.join('config/sidekiq_cron.yml')
     if schedule_file.exist?
-      Sidekiq::Cron::Job.load_from_hash!(YAML.load_file(schedule_file))
+      schedule = YAML.load_file(schedule_file)
+      if schedule['news_desk_cycle'] && ENV['NEWS_SOURCES_CRON'].present?
+        schedule['news_desk_cycle']['cron'] = ENV['NEWS_SOURCES_CRON']
+      end
+      Sidekiq::Cron::Job.load_from_hash!(schedule)
+      NewsDesk::CycleJob.perform_later
     end
   end
 end

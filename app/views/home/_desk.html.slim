@@ -1,0 +1,37 @@
+section.hero
+  .container.hero__grid
+    .hero__rail
+      - desk[:rail].each do |story|
+        article.story
+          p.kicker = story[:kicker]
+          h2.story__headline = story[:headline]
+          p.story__dek = story[:dek]
+          p.story__meta
+            strong = story[:byline]
+            |  • #{story[:time]}
+    article.hero__lead
+      figure.hero__figure
+        = image_tag desk[:lead][:image], alt: desk[:lead][:headline]
+        figcaption.hero__caption = desk[:lead][:caption]
+      p.kicker.kicker--mark = desk[:lead][:kicker]
+      h1.hero__headline = desk[:lead][:headline]
+      p.hero__dek = desk[:lead][:dek]
+      .hero__byline
+        .hero__byline-copy
+          p = desk[:lead][:byline].html_safe
+          p.story__meta = desk[:lead][:meta]
+    aside.latest
+      .latest__head
+        h2.latest__title
+          span.kicker-dot
+          | Latest Dispatches
+        span.latest__live Live Feed
+      ol.latest__list
+        - desk[:latest].each do |item|
+          li
+            .latest__row
+              time = item[:time]
+              span = item[:cat]
+            p = item[:text]
+      a.latest__archive href="#"
+        | « On Archive: Dispatch Stream

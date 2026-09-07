@@ -1,17 +1,17 @@
 :root {
-  --bg-0: #dfe6ee;
-  --bg-1: #f4f7fb;
-  --surface: rgba(255, 255, 255, 0.86);
-  --ink: #132033;
-  --muted: #5d6b7c;
-  --line: #c9d4e1;
-  --accent: #e36b14;
-  --accent-dark: #b6520c;
-  --steel: #1f4b7a;
-  --shadow: 0 18px 40px rgba(19, 32, 51, 0.1);
-  --radius: 18px;
-  --font-display: "Syne", sans-serif;
-  --font-body: "Manrope", sans-serif;
+  --paper: #faf9f6;
+  --paper-2: #f2f1ec;
+  --ink: #111;
+  --muted: #6a6a6a;
+  --kicker: #6f6f6f;
+  --line: #e0ddd4;
+  --line-strong: #1a1a1a;
+  --red: #9b1a1a;
+  --red-dark: #7a1212;
+  --archive: #1a1a1a;
+  --font-display: "Playfair Display", "Times New Roman", Georgia, serif;
+  --font-body: Inter, Helvetica, Arial, sans-serif;
+  --max: 1440px;
 }
 
 *,
@@ -20,15 +20,18 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  font-family: var(--font-body);
-  color: var(--ink);
-  background:
-    radial-gradient(circle at top left, rgba(227, 107, 20, 0.16), transparent 32%),
-    radial-gradient(circle at top right, rgba(31, 75, 122, 0.18), transparent 28%),
-    linear-gradient(180deg, var(--bg-0), var(--bg-1) 40%, #eef3f8);
   min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
 }
 
 img {
@@ -36,76 +39,64 @@ img {
   display: block;
 }
 
+@mixin card-photo {
+  overflow: hidden;
+  aspect-ratio: #{"16 / 9"};
+  background: #eceae3;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 a {
   color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+ol,
+ul,
+figure {
+  margin: 0;
 }
 
 .container {
-  max-width: 1180px;
+  width: min(var(--max), calc(100% - 1.25rem));
   margin: 0 auto;
-  padding: 0 1.25rem;
 }
 
 main {
-  min-height: calc(100vh - 120px);
-  padding: 0 0 3rem;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  border: 0;
-  border-radius: 999px;
-  padding: 0.85rem 1.35rem;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn--primary {
-  background: var(--accent);
-  color: #fff;
-}
-
-.btn--primary:hover {
-  background: var(--accent-dark);
-}
-
-.btn--ghost {
-  background: #fff;
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
-
-.btn--link {
-  background: transparent;
-  color: var(--steel);
-  padding-inline: 0.5rem;
+  min-height: auto;
+  padding: 0;
 }
 
 #flash {
   .container,
   & > * {
-    max-width: 1180px;
+    max-width: var(--max);
     margin: 0.75rem auto 0;
-    padding: 0 1.25rem;
   }
 }
 
 .notice,
 .alert {
-  border-radius: 14px;
-  padding: 0.9rem 1rem;
+  width: min(var(--max), calc(100% - 1.25rem));
   margin: 0.75rem auto 0;
-  max-width: 1180px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
 }
 
 .notice {
@@ -116,4 +107,177 @@ main {
 .alert {
   background: #fdeceb;
   color: #9b1c1c;
+}
+
+.kicker,
+.kicker--mark {
+  margin: 0 0 0.4rem;
+  color: var(--kicker);
+  font-family: var(--font-body);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.kicker--mark {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--red);
+  font-weight: 700;
+}
+
+.kicker--mark::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  background: var(--red);
+}
+
+.kicker--accent {
+  color: var(--red);
+  font-weight: 700;
+}
+
+.kicker-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 0.45rem;
+  background: var(--red);
+  vertical-align: 1px;
+}
+
+.story + .story {
+  margin-top: 1.15rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--line);
+}
+
+.story__headline {
+  font-family: var(--font-display);
+  font-size: 1.12rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.story__dek {
+  margin-top: 0.4rem;
+  color: #555;
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+.story__meta {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  font-weight: 400;
+}
+
+.tag-report {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0.12rem 0.35rem;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.section-head__caps {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.35rem;
+}
+
+.section-head--rule {
+  padding-top: 0.35rem;
+  border-top: 2px solid var(--line-strong);
+}
+
+.section-head__title,
+.section-head__display {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.section-head__display {
+  font-size: 1.55rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+.section-head__link,
+.section-head__note,
+.section-head__menu a {
+  color: var(--muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.section-head__note {
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+.section-head__menu {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.section-head__menu a:hover,
+.section-head__menu a.is-active,
+.section-head__link:hover {
+  color: var(--ink);
+}
+
+.section-head__menu a {
+  position: relative;
+  cursor: pointer;
+}
+
+.section-head__menu a.is-active {
+  color: var(--red);
+}
+
+.section-head__menu a.is-active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.35rem;
+  height: 2px;
+  background: var(--red);
+}
+
+.masthead__nav a {
+  cursor: pointer;
+}
+
+.tab-panel[hidden] {
+  display: none !important;
 }

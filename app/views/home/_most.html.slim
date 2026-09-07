@@ -1,0 +1,23 @@
+- if @most_posts.present? || @lead
+  section.most
+    .container.most__grid
+      .most__list
+        .section-head
+          h2.section-head__caps Most Read This Week
+          span.section-head__note Verified Broadsheet Traffic
+        ol
+          - @most_posts.each_with_index do |post, i|
+            li
+              span.most__num = format('%02d', i + 1)
+              div
+                p.kicker = post.label.presence || post.category.name
+                h3 = link_to post.title, article_path(post)
+                p.story__meta #{post.views} readers • #{post.minutes} min read
+      - archive = @most_posts.to_a[4] || @lead
+      - if archive
+        aside.archive
+          .archive__top
+            p.archive__label Investigative Unit Archive
+            time = archive.date&.to_fs(:short)
+          h3 = link_to archive.title, article_path(archive)
+          p = archive.excerpt(28)

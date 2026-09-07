@@ -1,0 +1,73 @@
+article.story-page
+  .container.story-wrap
+    .story-main
+      header.story-head
+        p.story-head__meta
+          span.kicker.kicker--accent = post.label.presence || post.category.name
+          - if post.credit_name.present?
+            span.story-head__desk = post.credit_name
+          - if post.note.present?
+            span.story-head__desk = post.note
+        h1.story-head__title = post.title
+        - if post.lead_in.present?
+          p.story-head__dek = post.lead_in
+      - if post.photo?
+        figure.story-hero
+          = post_image_tag post
+      .story-body
+        = simple_format(post.text)
+        - if post.credit_name.present?
+          p.story-source
+            | Source:
+            - if post.credit_url.present?
+              =< link_to post.credit_name, post.credit_url, target: '_blank', rel: 'noopener noreferrer'
+            - else
+              =< post.credit_name
+        - if post.quote.present?
+          blockquote.pull-quote
+            p = post.quote
+            - if post.quote_name.present?
+              cite = post.quote_name
+    aside.story-rail
+      - if @related.any?
+        section.related-cov
+          h2 Related Coverage
+          - @related.each do |item|
+            article.related-cov__item
+              - if item.photo?
+                = post_image_tag item
+              div
+                p.kicker = item.label.presence || item.category.name
+                h3 = link_to item.title, article_path(item)
+                p.story__meta = item.date&.to_fs(:short)
+      - if @most_read.any?
+        section.most-today
+          h2 Most Read Today
+          ol
+            - @most_read.each_with_index do |item, i|
+              li
+                span.most-today__num = format('%02d', i + 1)
+                div
+                  h3 = link_to item.title, article_path(item)
+                  p.story__meta = "#{item.category.name} • #{item.views} views"
+  - if @more.any?
+    section.continue
+      .container
+        .continue__head
+          div
+            p.kicker.kicker--accent More from the desk
+            h2 Continue Reading
+          = link_to 'View all →', section_path(post.category.url), class: 'continue__all'
+        .continue__grid
+          - @more.each do |card|
+            article.continue__card
+              - if card.photo?
+                figure.continue__media
+                  = post_image_tag card
+              .continue__copy
+                p.kicker = card.label.presence || card.category.name
+                h3 = link_to card.title, article_path(card)
+                p = card.excerpt(22)
+                p.continue__meta
+                  span = card.date&.to_fs(:short)
+                  span #{card.minutes} min read

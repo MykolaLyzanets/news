@@ -1,0 +1,5 @@
+news_desk_cycle:
+  cron: "*/15 * * * *"
+  class: "NewsDesk::CycleJob"
+  queue: default
+  description: "Fetch sources, publish original stories with credit, rank home lead"

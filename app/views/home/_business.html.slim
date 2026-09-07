@@ -1,0 +1,22 @@
+section.business
+  .container
+    .section-head.section-head--rule
+      h2.section-head__display Business, Technology & Global Trade
+    .business__grid
+      - deep = @business_posts.first
+      article.deep
+        - if deep.photo?
+          = post_image_tag deep, alt: deep.title
+        p.kicker.kicker--mark = deep.label.presence || deep.category.name
+        h3 = link_to deep.title, article_path(deep)
+        p = deep.excerpt(28)
+        p.story__meta
+          = story_time(deep)
+          span.tag-report Special Report
+      .business__rail
+        - @business_posts.drop(1).each do |post|
+          article.story
+            p.kicker = post.label.presence || post.category.name
+            h2.story__headline = link_to post.title, article_path(post)
+            p.story__dek = post.excerpt(22)
+            p.story__meta #{story_time(post)} • #{post.category.name}

@@ -1,0 +1,73 @@
+h1.admin__h Edit post
+- if @post.source_url.present?
+  p.admin__hint
+    | Source:
+    =< link_to @post.source_url, @post.source_url, target: '_blank', rel: 'noopener'
+    - if @post.source
+      |  · #{@post.source.name}
+      - if @post.source.country.present?
+        |  (#{@post.source.country})
+- if @post.original_title.present?
+  p.admin__hint Original title: #{@post.original_title}
+    - if @post.source
+      |  · #{@post.source.name}
+- if @post.original_title.present?
+  p.admin__hint Original title: #{@post.original_title}
+.admin__row
+  = button_to 'AI rewrite', rewrite_admin_post_path(@post), method: :post, class: 'admin__btn'
+  - if @post.published?
+    = button_to 'Hide', hide_admin_post_path(@post), method: :post, class: 'admin__btn admin__btn--ghost'
+  - else
+    = button_to 'Publish', publish_admin_post_path(@post), method: :post, class: 'admin__btn'
+  = link_to 'View on site', article_path(@post), target: '_blank', rel: 'noopener', class: 'admin__btn admin__btn--ghost'
+= form_with model: [:admin, @post], class: 'admin__form' do |f|
+  - if @post.errors.any?
+    ul.admin__bad
+      - @post.errors.full_messages.each do |msg|
+        li = msg
+  label
+    span Category
+    = f.collection_select :category_id, Category.ordered, :id, :name
+  label
+    span Title
+    = f.text_field :title
+  label
+    span Intro
+    = f.text_area :intro, rows: 3
+  label
+    span Text
+    = f.text_area :text, rows: 12
+  label
+    span Label
+    = f.text_field :label
+  label
+    span Note
+    = f.text_field :note
+  label
+    span Quote
+    = f.text_area :quote, rows: 2
+  label
+    span Quote name
+    = f.text_field :quote_name
+  label
+    span Photo
+    - if @post.image.present?
+      = image_tag @post.image.url, class: 'admin__preview'
+    = f.file_field :image
+  label
+    span Minutes
+    = f.number_field :minutes
+  label.admin__check
+    = f.check_box :main
+    span Main
+  label.admin__check
+    = f.check_box :breaking
+    span Breaking
+  label.admin__check
+    = f.check_box :special
+    span Special
+  label.admin__check
+    = f.check_box :published
+    span Published
+  = f.submit 'Save', class: 'admin__btn'
+p = link_to 'Back', admin_posts_path

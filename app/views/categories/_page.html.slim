@@ -1,0 +1,45 @@
+section.desk-hero
+  .container
+    h1.desk-hero__title = @category&.name || @section.to_s.titleize
+
+- if @lead_post
+  section.cat-lead
+    .container.cat-lead__grid
+      article.cat-lead__main
+        - if @lead_post.photo?
+          figure.cat-lead__figure
+            = post_image_tag @lead_post, alt: @lead_post.title
+        p.kicker.kicker--accent = @lead_post.label.presence || @lead_post.category.name
+        h2 = link_to @lead_post.title, article_path(@lead_post)
+        p.cat-lead__dek = @lead_post.excerpt(40)
+      .cat-lead__rail
+        - @rail_posts.each do |post|
+          article.cat-side
+            p.kicker.kicker--accent = post.label.presence || post.category.name
+            h3 = link_to post.title, article_path(post)
+
+section.cat-feed
+  .container
+    .section-head
+      h2.section-head__caps
+        span.cat-feed__mark
+        | Latest Dispatches & Scoops
+    - if @feed_posts.present?
+      ol.cat-feed__list
+        - @feed_posts.each do |post|
+          li
+            article.cat-item
+              - if post.photo?
+                figure.cat-item__media
+                  = post_image_tag post, alt: post.title
+              div
+                p.cat-item__meta
+                  span.kicker.kicker--accent = post.label.presence || post.category.name
+                  span.cat-item__desk
+                    = story_time(post)
+                    - if post.credit_name.present?
+                      |  · #{post.credit_name}
+                h3 = link_to post.title, article_path(post)
+                p = post.excerpt(28)
+    - elsif @lead_post.blank?
+      p.cat-feed__empty No stories in this category yet.

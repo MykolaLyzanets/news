@@ -1,0 +1,38 @@
+h1.admin__h Admin
+.admin__cards
+  .admin__card
+    p New posts
+    strong = @posts_new
+  .admin__card
+    p Live posts
+    strong = @posts_live
+  .admin__card
+    p Sources
+    strong #{@sources_on} on
+    p.admin__hint #{@sources_off} off
+  .admin__card
+    p OpenAI
+    strong = @ai_ready ? 'On' : 'Off'
+    - unless @ai_ready
+      p.admin__hint Add open_ai.api_key to credentials
+.admin__row
+  = button_to 'Fetch all sources', fetch_all_admin_sources_path, method: :post, class: 'admin__btn'
+  = button_to 'AI rewrite all new', rewrite_all_admin_posts_path, method: :post, class: 'admin__btn'
+  = link_to 'New Source', new_admin_source_path, class: 'admin__btn admin__btn--ghost'
+p.admin__hint Auto every 15 min: fetch and publish immediately, then pick home lead. AI rewrite is optional in Posts.
+ul.admin__list
+  - @sources.each do |source|
+    li class=('is-off' unless source.active?)
+      = admin_source_name(source)
+      span.admin__list-cat = source.category.name
+      - if source.active?
+        span.admin__badge.admin__badge--live On
+      - else
+        span.admin__badge.admin__badge--off Off
+      .admin__list-actions
+        - if source.active?
+          = button_to 'Make inactive', toggle_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--ghost admin__btn--small'
+        - else
+          = button_to 'Make active', toggle_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--good admin__btn--small'
+        = button_to 'Fetch', fetch_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--small'
+        = button_to 'Test', test_admin_source_path(source), method: :post, class: 'admin__btn admin__btn--small'

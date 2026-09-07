@@ -1,5 +1,15 @@
-header.header
+header.masthead
   .container
-    = link_to 'News', root_path, class: 'logo'
-    nav
-
+    .masthead__brand
+      .masthead__lockup
+        a.masthead__logo href=root_path
+          span THE DISPATCH
+        span.masthead__rule
+    nav.masthead__nav aria-label="Primary"
+      .masthead__links
+        - section_nav.each do |label, id|
+          = link_to section_href(id), class: ('is-active' if current_section == id)
+            = label
+            - if current_section == id
+              span.masthead__dot aria-hidden="true"
+    = render 'layouts/breaking'

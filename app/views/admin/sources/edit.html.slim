@@ -1,0 +1,8 @@
+h1.admin__h Edit source
+.admin__row
+  - if @source.active?
+    = button_to 'Make inactive', toggle_admin_source_path(@source), method: :post, class: 'admin__btn admin__btn--ghost'
+  - else
+    = button_to 'Make active', toggle_admin_source_path(@source), method: :post, class: 'admin__btn admin__btn--good'
+= render 'form', source: @source
+p = link_to 'Back', admin_sources_path

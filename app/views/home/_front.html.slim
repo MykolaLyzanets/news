@@ -1,0 +1,39 @@
+section.hero
+  .container.hero__grid
+    .hero__rail
+      - @rail.each do |post|
+        article.story
+          - if post.photo?
+            figure.story__media
+              = post_image_tag post, alt: post.title
+          p.kicker = post.label.presence || post.category.name
+          h2.story__headline = link_to post.title, article_path(post)
+          p.story__dek = post.excerpt(22)
+          p.story__meta
+            strong = post.category.name
+            |  • #{story_time(post)}
+            - if post.credit_name.present?
+              |  • #{post.credit_name}
+
+    article.hero__lead
+      - if @lead.photo?
+        figure.hero__figure
+          = post_image_tag @lead, alt: @lead.title
+      p.kicker.kicker--mark = @lead.label.presence || @lead.category.name
+      h1.hero__headline
+        = link_to @lead.title, article_path(@lead)
+      p.hero__dek = @lead.excerpt(40)
+
+    aside.latest
+      .latest__head
+        h2.latest__title
+          span.kicker-dot
+          | Latest Dispatches
+        span.latest__live Live Feed
+      ol.latest__list
+        - @latest.each do |post|
+          li
+            .latest__row
+              time = post.date&.strftime('%H:%M')
+              span = post.category.name
+            p = link_to post.title, article_path(post)

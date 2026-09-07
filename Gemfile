@@ -18,7 +18,10 @@ gem 'stimulus-rails'
 gem 'turbo-rails'
 
 gem 'bootsnap', require: false
+gem 'carrierwave', '~> 3.0'
+gem 'mini_magick', '~> 4.13'
 gem 'faraday', '~> 2.9'
+gem 'rss'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 group :development, :test do

@@ -1,0 +1,99 @@
+.admin__head
+  .admin__head-copy
+    h1.admin__h Posts
+    p.admin__muted
+      - if @category
+        | #{@category.name} ·
+      =< "#{@total} #{'post'.pluralize(@total)}"
+      - if params[:live] == '1'
+        |  · live
+      - elsif params[:live] == '0'
+        |  · drafts
+  .admin__head-actions
+    = button_to 'AI rewrite all new', rewrite_all_admin_posts_path, method: :post, class: 'admin__btn'
+
+nav.admin__tabs
+  = link_to admin_posts_path(admin_posts_q(category: nil, page: nil)), class: admin_tab_on?(@category.blank?)
+    | All
+    span.admin__tab-n = @count_all
+  - @categories.each do |cat|
+    = link_to admin_posts_path(admin_posts_q(category: cat.url, page: nil)), class: admin_tab_on?(@category == cat)
+      = cat.name
+      span.admin__tab-n = @counts[cat.id] || 0
+
+.admin__toolbar
+  .admin__pills
+    = link_to 'All', admin_posts_path(admin_posts_q(live: nil, page: nil)), class: admin_pill_on?(params[:live].blank?)
+    = link_to 'Live', admin_posts_path(admin_posts_q(live: 1, page: nil)), class: admin_pill_on?(params[:live] == '1')
+    = link_to 'Drafts', admin_posts_path(admin_posts_q(live: 0, page: nil)), class: admin_pill_on?(params[:live] == '0')
+  p.admin__muted
+    - if @total.zero?
+      | Nothing here
+    - else
+      | #{((@page - 1) * @per_page) + 1}–#{[(@page - 1) * @per_page + @posts.size, @total].min} of #{@total}
+
+.admin__panel
+  - if @posts.empty?
+    p.admin__empty No posts in this filter.
+  - else
+    table.admin__table
+      thead
+        tr
+          th Title
+          th Category
+          th Status
+          th AI
+          th
+      tbody
+        - @posts.each do |post|
+          tr
+            td
+              p.admin__title = post.title
+              p.admin__meta
+                = post.date&.strftime('%d %b %H:%M')
+                - if post.source
+                  |  · #{post.source.name}
+                  - if post.source.country.present?
+                    |  (#{post.source.country})
+                - if post.main?
+                  span.admin__flag Lead
+                - if post.breaking?
+                  span.admin__flag.admin__flag--hot Breaking
+            td
+              span.admin__desk = post.category.name
+            td
+              - if post.published?
+                span.admin__badge.admin__badge--live Live
+              - else
+                span.admin__badge.admin__badge--draft Draft
+            td
+              - if post.ai_done?
+                span.admin__badge.admin__badge--ai Done
+              - else
+                span.admin__badge Pending
+            td.admin__actions
+              = link_to 'View on site', article_path(post), target: '_blank', rel: 'noopener', class: 'admin__btn admin__btn--ghost admin__btn--small'
+              = link_to 'Edit', edit_admin_post_path(post), class: 'admin__btn admin__btn--ghost admin__btn--small'
+              = button_to 'AI', rewrite_admin_post_path(post), method: :post, class: 'admin__btn admin__btn--small'
+              - if post.published?
+                = button_to 'Hide', hide_admin_post_path(post), method: :post, class: 'admin__btn admin__btn--ghost admin__btn--small'
+              - else
+                = button_to 'Publish', publish_admin_post_path(post), method: :post, class: 'admin__btn admin__btn--good admin__btn--small'
+              = button_to 'Delete', admin_post_path(post), method: :delete, class: 'admin__btn admin__btn--danger admin__btn--small', form: { data: { turbo_confirm: 'Delete this post?' } }
+
+- if @pages > 1
+  nav.admin__pager aria-label="Pagination"
+    - if @page > 1
+      = link_to 'Prev', admin_posts_path(admin_posts_q(page: @page - 1)), class: 'admin__page admin__page--move'
+    - else
+      span.admin__page.admin__page--off Prev
+    - prev = nil
+    - admin_page_list(@page, @pages).each do |n|
+      - if prev && n > prev + 1
+        span.admin__page-gap …
+      = link_to n, admin_posts_path(admin_posts_q(page: n)), class: "admin__page#{' is-on' if n == @page}"
+      - prev = n
+    - if @page < @pages
+      = link_to 'Next', admin_posts_path(admin_posts_q(page: @page + 1)), class: 'admin__page admin__page--move'
+    - else
+      span.admin__page.admin__page--off Next

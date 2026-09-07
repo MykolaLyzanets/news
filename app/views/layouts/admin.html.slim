@@ -1,0 +1,25 @@
+doctype html
+html lang="en"
+  head
+    title Admin — THE DISPATCH
+    meta name="viewport" content="width=device-width, initial-scale=1"
+    = stylesheet_link_tag "application.min", "data-turbo-track": "reload"
+    = javascript_include_tag "application", "data-turbo-track": "reload", defer: true
+    = csrf_meta_tags
+  body.admin-body
+    .admin
+      aside.admin__side
+        p.admin__brand THE DISPATCH
+        p.admin__sub Admin
+        nav.admin__nav
+          = link_to 'Home', admin_root_path, class: ('is-on' if controller_name == 'home')
+          = link_to 'News Sources', admin_sources_path, class: ('is-on' if controller_name == 'sources')
+          = link_to 'Posts', admin_posts_path, class: ('is-on' if controller_name == 'posts')
+          = link_to 'Site', root_path, target: '_blank'
+        = button_to 'Log out', destroy_user_session_path, method: :delete, class: 'admin__out'
+      .admin__main
+        - if notice
+          p.admin__ok = notice
+        - if alert
+          p.admin__bad = alert
+        = yield
