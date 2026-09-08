@@ -1,4 +1,4 @@
-- if @most_posts.present? || @lead
+- if @most_posts.present? || @archive
   section.most
     .container.most__grid
       .most__list
@@ -13,7 +13,7 @@
                 p.kicker = post.label.presence || post.category.name
                 h3 = link_to post.title, article_path(post)
                 p.story__meta #{post.views} readers • #{post.minutes} min read
-      - archive = @most_posts.to_a[4] || @lead
+      - archive = @archive
       - if archive
         aside.archive
           .archive__top

@@ -3,7 +3,7 @@
     = render 'home/front'
     - if @business_posts.present?
       = render 'home/business'
-    - if @most_posts.present? || @lead
+    - if @most_posts.present? || @archive
       = render 'home/most'
   - else
     .container
