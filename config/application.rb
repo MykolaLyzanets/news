@@ -18,7 +18,7 @@ module News
 
     config.i18n.fallbacks = [I18n.default_locale]
     config.i18n.fallbacks = true
-    config.time_zone = 'Kyiv'
+    # config.time_zone = 'Kyiv'
 
     config.autoload_paths += %W[#{config.root}/lib]
 
