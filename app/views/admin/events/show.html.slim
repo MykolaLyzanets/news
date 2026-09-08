@@ -1,0 +1,52 @@
+.admin__head
+  .admin__head-copy
+    h1.admin__h = @event.title
+    p.admin__muted
+      | ##{@event.id} · #{@event.category.name} · score #{@event.score} · #{@event.source_count} sources · #{@event.status}
+.admin__row
+  = button_to 'Publish', publish_admin_event_path(@event), method: :post, class: 'admin__btn'
+  = button_to 'Regenerate', regenerate_admin_event_path(@event), method: :post, class: 'admin__btn'
+  = button_to 'Hide', hide_admin_event_path(@event), method: :post, class: 'admin__btn admin__btn--ghost'
+  = button_to 'Ignore', ignore_admin_event_path(@event), method: :post, class: 'admin__btn admin__btn--ghost'
+  - if @event.post
+    = link_to 'Edit post', edit_admin_post_path(@event.post), class: 'admin__btn admin__btn--ghost'
+    = link_to 'View on site', article_path(@event.post), target: '_blank', rel: 'noopener', class: 'admin__btn admin__btn--ghost'
+
+.admin__panel
+  h2.admin__h Score
+  p.admin__meta = @event.score_breakdown.map { |key, value| "#{key}: #{value}" }.join(' · ')
+  - if @event.ai_error.present?
+    p.admin__bad = @event.ai_error
+  p.admin__hint AI: #{@event.ai_status.presence || '—'} · quality: #{@event.quality_status.presence || '—'} · attempts: #{@event.ai_attempts}
+
+.admin__panel
+  h2.admin__h Sources
+  = form_with url: split_admin_event_path(@event), method: :post do
+    table.admin__table
+      thead
+        tr
+          th
+          th Source
+          th Title
+          th Date
+      tbody
+        - @articles.each do |article|
+          tr
+            td = check_box_tag 'article_ids[]', article.id
+            td = article.source&.name
+            td
+              = article.title
+              br
+              = link_to article.source_url, article.source_url, target: '_blank', rel: 'noopener'
+            td = article.published_at&.strftime('%d %b %H:%M')
+    = submit_tag 'Split selected into a new event', class: 'admin__btn admin__btn--ghost'
+
+.admin__panel
+  h2.admin__h Merge
+  = form_with url: merge_admin_event_path(@event), method: :post do
+    label
+      span Merge this event into / absorb
+      = select_tag :other_id, options_from_collection_for_select(@others, :id, :title)
+    = submit_tag 'Merge other event into this one', class: 'admin__btn'
+
+p = link_to 'Back', admin_events_path

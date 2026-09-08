@@ -3,7 +3,7 @@
 module Posts
   class RankService
     def call
-      posts = Post.visible.fresh.includes(:source, :category).select(&:photo?)
+      posts = Post.visible.fresh.includes(:source, :category, :event).select(&:photo?)
       return if posts.empty?
 
       ranked = posts.sort_by { |post| -Score.call(post) }

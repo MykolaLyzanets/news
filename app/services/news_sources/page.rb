@@ -2,7 +2,6 @@
 
 module NewsSources
   class Page
-    MIN_WORDS = 80
     JUNK = /
       cookie|subscribe|newsletter|advertisement|sign in|sign up|log in|
       related stories|skip to|enable javascript|we use cookies|
@@ -34,7 +33,7 @@ module NewsSources
 
       parts = node.css('p, h2, h3').map { |el| el.text.squish }.reject { |line| junk?(line) }
       body = parts.join("\n\n")
-      return if body.split.size < MIN_WORDS
+      return if body.split.size < NewsDesk::Config.min_words
 
       body
     rescue StandardError => e
@@ -47,7 +46,7 @@ module NewsSources
     def best_node(doc)
       SELECTORS.each do |sel|
         best = doc.css(sel).max_by { |node| words_in(node) }
-        return best if best && words_in(best) >= MIN_WORDS
+        return best if best && words_in(best) >= NewsDesk::Config.min_words
       end
 
       nil

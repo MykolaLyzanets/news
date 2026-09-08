@@ -3,6 +3,8 @@
 class Category < ApplicationRecord
   has_many :posts, dependent: :restrict_with_error
   has_many :sources, dependent: :restrict_with_error
+  has_many :events, dependent: :restrict_with_error
+  has_many :source_articles, dependent: :restrict_with_error
 
   validates :name, presence: true
   validates :url, presence: true, uniqueness: true

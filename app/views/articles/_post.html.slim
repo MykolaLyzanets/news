@@ -4,8 +4,6 @@ article.story-page
       header.story-head
         p.story-head__meta
           span.kicker.kicker--accent = post.label.presence || post.category.name
-          - if post.credit_name.present?
-            span.story-head__desk = post.credit_name
           - if post.note.present?
             span.story-head__desk = post.note
         h1.story-head__title = post.title
@@ -16,19 +14,21 @@ article.story-page
           = post_image_tag post
       .story-body
         = simple_format(post.text)
-        - if post.credit_name.present?
-          p.story-source
-            | Source:
-            - if post.credit_url.present?
-              =< link_to post.credit_name, post.credit_url, target: '_blank', rel: 'noopener noreferrer'
-            - else
-              =< post.credit_name
         - if post.quote.present?
           blockquote.pull-quote
             p = post.quote
             - if post.quote_name.present?
               cite = post.quote_name
     aside.story-rail
+      - if @topics.present?
+        section.most-today
+          h2 Topics
+          ol
+            - @topics.each_with_index do |topic, i|
+              li
+                span.most-today__num = format('%02d', i + 1)
+                div
+                  h3 = link_to topic.name, topic_path(topic)
       - if @related.any?
         section.related-cov
           h2 Related Coverage

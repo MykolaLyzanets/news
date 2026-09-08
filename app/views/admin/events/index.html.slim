@@ -1,0 +1,60 @@
+.admin__head
+  .admin__head-copy
+    h1.admin__h Events
+    p.admin__muted #{@total} #{'event'.pluralize(@total)} · today #{Post.published_today.count}/#{NewsDesk::Config.daily_limit}
+
+nav.admin__tabs
+  = link_to 'All', admin_events_path, class: admin_tab_on?(params[:status].blank?)
+  - %w[open ready published ignored failed].each do |status|
+    = link_to admin_events_path(status:), class: admin_tab_on?(params[:status] == status)
+      = status.titleize
+      span.admin__tab-n = @counts[status] || 0
+
+.admin__panel
+  - if @events.empty?
+    p.admin__empty No events in this filter.
+  - else
+    table.admin__table
+      thead
+        tr
+          th Event
+          th Score
+          th Sources
+          th Status
+          th Post
+          th
+      tbody
+        - @events.each do |event|
+          tr
+            td
+              p.admin__title = event.title
+              p.admin__meta
+                = event.category.name
+                |  · #{event.created_at&.strftime('%d %b %H:%M')}
+                - if event.breaking?
+                  span.admin__flag.admin__flag--hot Breaking
+            td
+              strong = event.score
+              p.admin__meta = event.score_breakdown.except('total').map { |key, value| "#{key}: #{value}" }.join(' · ')
+            td = event.source_count
+            td
+              span.admin__badge = event.status
+            td
+              - if event.post
+                = link_to event.post.title.truncate(48), edit_admin_post_path(event.post)
+              - else
+                | —
+            td.admin__actions
+              = link_to 'Open', admin_event_path(event), class: 'admin__btn admin__btn--ghost admin__btn--small'
+
+- if @pages > 1
+  nav.admin__pager aria-label="Pagination"
+    - if @page > 1
+      = link_to 'Prev', admin_events_path(status: params[:status], page: @page - 1), class: 'admin__page admin__page--move'
+    - else
+      span.admin__page.admin__page--off Prev
+    span.admin__page.is-on = @page
+    - if @page < @pages
+      = link_to 'Next', admin_events_path(status: params[:status], page: @page + 1), class: 'admin__page admin__page--move'
+    - else
+      span.admin__page.admin__page--off Next

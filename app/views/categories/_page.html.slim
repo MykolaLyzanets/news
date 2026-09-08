@@ -35,11 +35,19 @@ section.cat-feed
               div
                 p.cat-item__meta
                   span.kicker.kicker--accent = post.label.presence || post.category.name
-                  span.cat-item__desk
-                    = story_time(post)
-                    - if post.credit_name.present?
-                      |  · #{post.credit_name}
+                  span.cat-item__desk = story_time(post)
                 h3 = link_to post.title, article_path(post)
                 p = post.excerpt(28)
     - elsif @lead_post.blank?
       p.cat-feed__empty No stories in this category yet.
+    - if @pages.to_i > 1
+      nav.cat-pager aria-label="Pagination"
+        - if @page > 1
+          = link_to 'Prev', section_path(@section, page: @page - 1), class: 'cat-pager__btn'
+        - else
+          span.cat-pager__btn Prev
+        span Page #{@page} of #{@pages}
+        - if @page < @pages
+          = link_to 'Next', section_path(@section, page: @page + 1), class: 'cat-pager__btn'
+        - else
+          span.cat-pager__btn Next

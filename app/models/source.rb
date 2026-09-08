@@ -6,6 +6,7 @@ class Source < ApplicationRecord
 
   belongs_to :category
   has_many :posts, dependent: :nullify
+  has_many :source_articles, dependent: :nullify
 
   validates :name, :url, :feed_url, presence: true
   validates :feed_url, uniqueness: true
@@ -18,6 +19,10 @@ class Source < ApplicationRecord
 
   scope :ordered, -> { order(:priority, :name) }
   scope :active, -> { where(active: true) }
+
+  def reliable?
+    priority <= NewsDesk::Config.reliable_priority
+  end
 
   def fetchable?
     FETCHABLE_TYPES.include?(parser_type)

@@ -16,9 +16,9 @@ module NewsSources
       body = page_text.presence || item.content.presence || item.summary
       return unless enough_text?(body)
 
-      post = Post.create!(
-        category: source.category,
+      article = SourceArticle.create!(
         source:,
+        category: source.category,
         source_url: url,
         fingerprint:,
         title: item.title,
@@ -26,16 +26,15 @@ module NewsSources
         text: body,
         original_title: item.title,
         original_intro: item.summary,
-        original_text: item.content,
-        label: source.category.name,
+        original_text: body,
         source_image_url: image_url,
-        date: item.published_at || Time.current,
-        published: true,
-        ai_done: false,
-        minutes: [(body.to_s.split.size / 200.0).ceil, 1].max
+        published_at: item.published_at || Time.current,
+        status: 'pending',
+        match_key: NewsDesk::Tokens.match_key(item.title),
+        entities: NewsDesk::Tokens.entities(item.title, body)
       )
-      images.attach(post, image_url)
-      post
+      images.attach(article, image_url)
+      article
     rescue ActiveRecord::RecordNotUnique, ActiveRecord::RecordInvalid
       nil
     end
@@ -43,7 +42,7 @@ module NewsSources
     private
 
     def enough_text?(body)
-      body.to_s.split.size >= Post::MIN_WORDS
+      body.to_s.split.size >= NewsDesk::Config.min_words
     end
   end
 end

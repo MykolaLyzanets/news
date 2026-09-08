@@ -20,6 +20,7 @@ module ApplicationHelper
     return params[:section] if controller_name == 'categories'
     return @post.category.url if controller_name == 'articles' && @post
     return 'home' if controller_name == 'articles'
+    return 'home' if controller_name == 'topics'
 
     'home'
   end
@@ -55,8 +56,55 @@ module ApplicationHelper
     if controller_name == 'articles' && @post
       return "#{@post.title} — THE DISPATCH"
     end
+    if controller_name == 'topics' && @topic
+      return "#{@topic.name} — THE DISPATCH"
+    end
     return 'THE DISPATCH' if current_section == 'home'
 
     "#{current_section.to_s.titleize} — THE DISPATCH"
+  end
+
+  def page_description
+    if controller_name == 'articles' && @post
+      return @post.meta_description
+    end
+    if controller_name == 'topics' && @topic
+      return "Coverage of #{@topic.name} from THE DISPATCH."
+    end
+    if controller_name == 'categories' && @category
+      return @category.text.presence || "#{@category.name} news from THE DISPATCH."
+    end
+
+    'Original reporting from THE DISPATCH.'
+  end
+
+  def canonical_url
+    "#{request.base_url}#{request.path}"
+  end
+
+  def news_article_jsonld(post)
+    data = {
+      '@context' => 'https://schema.org',
+      '@type' => 'NewsArticle',
+      'headline' => post.title,
+      'description' => post.meta_description,
+      'datePublished' => post.date&.iso8601,
+      'dateModified' => post.updated_at&.iso8601,
+      'mainEntityOfPage' => article_url(post),
+      'author' => { '@type' => 'Organization', 'name' => 'THE DISPATCH' },
+      'publisher' => { '@type' => 'Organization', 'name' => 'THE DISPATCH' }
+    }
+    image = jsonld_image(post)
+    data['image'] = image if image.present?
+    data.to_json
+  end
+
+  def jsonld_image(post)
+    if post.real_image?
+      url = post.image.url.to_s
+      url.start_with?('http') ? url : "#{request.base_url}#{url}"
+    else
+      post.source_image_url.presence
+    end
   end
 end

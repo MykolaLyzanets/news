@@ -43,7 +43,7 @@ module Admin
 
     def fetch_all
       NewsDesk::CycleJob.perform_later
-      redirect_to admin_sources_path, notice: 'Desk cycle queued: fetch and publish'
+      redirect_to admin_sources_path, notice: 'Desk cycle queued: fetch, cluster, and publish within the daily cap'
     end
 
     def parse

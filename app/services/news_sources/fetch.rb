@@ -2,8 +2,6 @@
 
 module NewsSources
   class Fetch
-    LIMIT = Integer(ENV.fetch('NEWS_SOURCES_ITEM_LIMIT', '6'))
-
     def initialize(source, client: Client.new, importer: Import.new, dedup: Dedup.new)
       @source = source
       @client = client
@@ -12,12 +10,11 @@ module NewsSources
     end
 
     def call
-      log("Fetch started")
+      log('Fetch started')
       @source.mark_fetched!
 
-      unless @source.active?
-        return result(ok: false, error: 'Source is inactive')
-      end
+      return result(ok: false, error: 'Source is inactive') unless @source.active?
+
       unless @source.fetchable?
         error = "Parser #{@source.parser_type} is not implemented yet"
         @source.mark_error!(error)
@@ -25,7 +22,8 @@ module NewsSources
       end
 
       body = @client.get(@source.feed_url)
-      items = Parser.build(@source, body).items.select { |item| Post.fresh?(item.published_at) }.first(LIMIT)
+      items = Parser.build(@source, body).items.select { |item| Post.fresh?(item.published_at) }
+                    .first(NewsDesk::Config.item_limit)
       added = 0
       duplicates = 0
 
@@ -57,12 +55,13 @@ module NewsSources
 
     def fill_image(item)
       url = Normalize.url(item.source_url)
-      post = Post.find_by(source_url: [item.source_url, url].uniq)
-      return unless post && !post.photo?
+      article = SourceArticle.find_by(source_url: [item.source_url, url].uniq) ||
+                Post.find_by(source_url: [item.source_url, url].uniq)
+      return unless article && !article.photo?
 
       images = Image.new
-      image_url = images.pick(item.image_url, post.source_url)
-      images.attach(post, image_url)
+      image_url = images.pick(item.image_url, article.source_url)
+      images.attach(article, image_url)
     end
 
     def log(message)

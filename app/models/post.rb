@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 class Post < ApplicationRecord
-  MIN_WORDS = 80
-
   belongs_to :category
   belongs_to :source, optional: true
+  belongs_to :event, optional: true
   mount_uploader :image, ImageUploader
 
   validates :title, presence: true
@@ -12,6 +11,7 @@ class Post < ApplicationRecord
   validates :source_url, uniqueness: true, allow_blank: true
   validates :fingerprint, uniqueness: true, allow_blank: true
   validates :views, :minutes, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  validates :event_id, uniqueness: true, allow_nil: true
 
   before_validation :fill_url
   before_validation :fill_empty
@@ -24,6 +24,7 @@ class Post < ApplicationRecord
   scope :urgent, -> { where(breaking: true) }
   scope :popular, -> { order(views: :desc) }
   scope :pending_ai, -> { where(ai_done: false) }
+  scope :published_today, -> { visible.where(date: Time.zone.now.all_day) }
 
   def self.fresh_since
     Time.zone.now.beginning_of_day - 1.day
@@ -46,7 +47,7 @@ class Post < ApplicationRecord
   end
 
   def full_story?
-    text.to_s.split.size >= MIN_WORDS
+    text.to_s.split.size >= NewsDesk::Config.min_words
   end
 
   def photo?
@@ -74,11 +75,33 @@ class Post < ApplicationRecord
     source_url.presence || source&.url
   end
 
+  def source_credits
+    rows = if event
+             event.source_articles.includes(:source).filter_map do |item|
+               name = item.source&.name
+               next if name.blank?
+
+               { name:, url: item.source_url, date: item.published_at }
+             end
+           elsif credit_name.present?
+             [{ name: credit_name, url: credit_url, date: }]
+           else
+             []
+           end
+    rows.uniq { |row| row[:name] }
+  end
+
   def excerpt(words = 36)
-    (text.presence || intro).to_s.squish.truncate_words(words, omission: '…')
+    (intro.presence || text).to_s.squish.truncate_words(words, omission: '…')
+  end
+
+  def meta_description
+    excerpt(40)
   end
 
   def lead_in
+    return intro if intro.present?
+
     body = text.to_s.squish
     return if body.blank?
 
@@ -86,6 +109,10 @@ class Post < ApplicationRecord
     return if sentences.size <= 2
 
     sentences.first(2).join(' ')
+  end
+
+  def related_topics
+    event&.topics.to_a || []
   end
 
   private

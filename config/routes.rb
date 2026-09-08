@@ -26,6 +26,15 @@ Rails.application.routes.draw do
       post :publish, on: :member
       post :hide, on: :member
       post :rewrite_all, on: :collection
+      post :regenerate, on: :member
+    end
+    resources :events, only: %i[index show] do
+      post :publish, on: :member
+      post :hide, on: :member
+      post :regenerate, on: :member
+      post :merge, on: :member
+      post :split, on: :member
+      post :ignore, on: :member
     end
   end
 
@@ -36,6 +45,7 @@ Rails.application.routes.draw do
   scope '(:locale)', locale: /(#{I18n.available_locales.map(&:to_s).join('|')})/ do
     root 'home#index'
     get 'articles/:id', to: 'articles#show', as: :article
+    get 'topics/:id', to: 'topics#show', as: :topic
     get ':section', to: 'categories#show', as: :section,
         constraints: { section: /world|politics|business|technology|science|culture|sport/ }
 

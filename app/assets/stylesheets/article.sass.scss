@@ -106,6 +106,17 @@
   color: var(--red);
 }
 
+.story-topics {
+  margin-top: 0.7rem;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+}
+
+.story-topics a {
+  color: var(--ink);
+}
+
 .story-body__lead::first-letter {
   float: left;
   margin: 0.12rem 0.45rem 0 0;
@@ -151,6 +162,19 @@
 .related-cov {
   padding-top: 0.2rem;
   border-top: 2px solid var(--red);
+}
+
+.story-main .related-cov {
+  margin-top: 1.8rem;
+}
+
+.story-rail .most-today:first-child {
+  margin-top: 0;
+}
+
+.story-rail .related-cov + .most-today,
+.story-rail .most-today + .related-cov {
+  margin-top: 1.6rem;
 }
 
 .related-cov h2,

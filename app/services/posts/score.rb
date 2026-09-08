@@ -21,11 +21,11 @@ module Posts
     end
 
     def call
-      recency + source_weight + keyword + body
+      recency + source_weight + keyword + body + event_boost
     end
 
     def super_hit?
-      keyword >= 20
+      keyword >= 20 || event_boost >= 20
     end
 
     private
@@ -52,6 +52,13 @@ module Posts
 
     def body
       @post.text.to_s.size > 180 ? 5 : 0
+    end
+
+    def event_boost
+      event = @post.event
+      return 0 unless event
+
+      (event.score / 10) + [event.source_count * 3, 15].min
     end
   end
 end

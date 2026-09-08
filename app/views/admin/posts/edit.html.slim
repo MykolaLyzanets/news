@@ -9,12 +9,19 @@ h1.admin__h Edit post
         |  (#{@post.source.country})
 - if @post.original_title.present?
   p.admin__hint Original title: #{@post.original_title}
-    - if @post.source
-      |  · #{@post.source.name}
-- if @post.original_title.present?
-  p.admin__hint Original title: #{@post.original_title}
+- if @post.event
+  p.admin__hint
+    | Event:
+    =< link_to @post.event.title, admin_event_path(@post.event)
+    |  · score #{@post.event.score} · #{@post.event.source_count} sources
+- if @post.ai_error.present?
+  p.admin__bad = @post.ai_error
+- if @post.quality_status.present?
+  p.admin__hint Quality: #{@post.quality_status}
 .admin__row
   = button_to 'AI rewrite', rewrite_admin_post_path(@post), method: :post, class: 'admin__btn'
+  - if @post.event
+    = button_to 'Regenerate from event', regenerate_admin_post_path(@post), method: :post, class: 'admin__btn'
   - if @post.published?
     = button_to 'Hide', hide_admin_post_path(@post), method: :post, class: 'admin__btn admin__btn--ghost'
   - else

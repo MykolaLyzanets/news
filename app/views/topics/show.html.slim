@@ -1,0 +1,51 @@
+article.story-page
+  .container.story-wrap
+    .story-main
+      header.story-head
+        p.story-head__meta
+          span.kicker.kicker--accent Topic
+        h1.story-head__title = @topic.name
+        - if @lead_post
+          p.story-head__dek = @lead_post.excerpt(36)
+      - if @lead_post
+        - if @lead_post.photo?
+          figure.story-hero
+            = post_image_tag @lead_post, alt: @lead_post.title
+        .story-body
+          p.kicker.kicker--accent = @lead_post.label.presence || @lead_post.category.name
+          h2 = link_to @lead_post.title, article_path(@lead_post)
+          p = @lead_post.excerpt(40)
+          p.story__meta = @lead_post.date&.to_fs(:short)
+      - if @coverage.present?
+        section.related-cov
+          h2 Related Coverage
+          - @coverage.each do |item|
+            article.related-cov__item
+              - if item.photo?
+                = post_image_tag item, alt: item.title
+              div
+                p.kicker = item.label.presence || item.category.name
+                h3 = link_to item.title, article_path(item)
+                p.story__meta = item.date&.to_fs(:short)
+    aside.story-rail
+      - if @related.any?
+        section.related-cov
+          h2 Related Coverage
+          - @related.each do |item|
+            article.related-cov__item
+              - if item.photo?
+                = post_image_tag item, alt: item.title
+              div
+                p.kicker = item.label.presence || item.category.name
+                h3 = link_to item.title, article_path(item)
+                p.story__meta = item.date&.to_fs(:short)
+      - if @most_read.any?
+        section.most-today
+          h2 Most Read Today
+          ol
+            - @most_read.each_with_index do |item, i|
+              li
+                span.most-today__num = format('%02d', i + 1)
+                div
+                  h3 = link_to item.title, article_path(item)
+                  p.story__meta = "#{item.category.name} • #{item.views} views"

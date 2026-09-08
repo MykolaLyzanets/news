@@ -7,6 +7,12 @@ h1.admin__h Admin
     p Live posts
     strong = @posts_live
   .admin__card
+    p Published today
+    strong #{@posts_today}/#{@daily_limit}
+  .admin__card
+    p Open events
+    strong = @events_open
+  .admin__card
     p Sources
     strong #{@sources_on} on
     p.admin__hint #{@sources_off} off
@@ -18,8 +24,9 @@ h1.admin__h Admin
 .admin__row
   = button_to 'Fetch all sources', fetch_all_admin_sources_path, method: :post, class: 'admin__btn'
   = button_to 'AI rewrite all new', rewrite_all_admin_posts_path, method: :post, class: 'admin__btn'
+  = link_to 'Events', admin_events_path, class: 'admin__btn admin__btn--ghost'
   = link_to 'New Source', new_admin_source_path, class: 'admin__btn admin__btn--ghost'
-p.admin__hint Auto every 15 min: fetch and publish immediately, then pick home lead. AI rewrite is optional in Posts.
+p.admin__hint Auto every 15 min: fetch candidates, cluster events, then publish only the best stories within the daily cap. AI rewrite of headlines is still optional in Posts.
 ul.admin__list
   - @sources.each do |source|
     li class=('is-off' unless source.active?)

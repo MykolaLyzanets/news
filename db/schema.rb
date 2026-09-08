@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_09_07_234000) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -53,6 +53,44 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_07_234000) do
     t.index ["url"], name: "index_categories_on_url", unique: true
   end
 
+  create_table "event_topics", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "topic_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "topic_id"], name: "index_event_topics_on_event_id_and_topic_id", unique: true
+    t.index ["event_id"], name: "index_event_topics_on_event_id"
+    t.index ["topic_id"], name: "index_event_topics_on_topic_id"
+  end
+
+  create_table "events", force: :cascade do |t|
+    t.bigint "category_id", null: false
+    t.string "title", null: false
+    t.string "status", default: "open", null: false
+    t.integer "score", default: 0, null: false
+    t.jsonb "score_breakdown", default: {}, null: false
+    t.jsonb "facts", default: {}, null: false
+    t.jsonb "entities", default: {}, null: false
+    t.boolean "breaking", default: false, null: false
+    t.integer "source_count", default: 0, null: false
+    t.integer "ai_attempts", default: 0, null: false
+    t.string "ai_status"
+    t.text "ai_error"
+    t.string "quality_status"
+    t.string "match_key"
+    t.datetime "first_seen_at"
+    t.datetime "last_seen_at"
+    t.datetime "published_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["breaking"], name: "index_events_on_breaking"
+    t.index ["category_id"], name: "index_events_on_category_id"
+    t.index ["first_seen_at"], name: "index_events_on_first_seen_at"
+    t.index ["match_key"], name: "index_events_on_match_key"
+    t.index ["score"], name: "index_events_on_score"
+    t.index ["status"], name: "index_events_on_status"
+  end
+
   create_table "posts", force: :cascade do |t|
     t.bigint "category_id", null: false
     t.string "url", null: false
@@ -81,13 +119,48 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_07_234000) do
     t.string "fingerprint"
     t.string "source_image_url"
     t.string "image"
+    t.bigint "event_id"
+    t.text "ai_error"
+    t.string "quality_status"
     t.index ["category_id"], name: "index_posts_on_category_id"
     t.index ["date"], name: "index_posts_on_date"
+    t.index ["event_id"], name: "index_posts_on_event_id", unique: true, where: "(event_id IS NOT NULL)"
     t.index ["fingerprint"], name: "index_posts_on_fingerprint", unique: true, where: "(fingerprint IS NOT NULL)"
     t.index ["published"], name: "index_posts_on_published"
     t.index ["source_id"], name: "index_posts_on_source_id"
     t.index ["source_url"], name: "index_posts_on_source_url", unique: true
     t.index ["url"], name: "index_posts_on_url", unique: true
+  end
+
+  create_table "source_articles", force: :cascade do |t|
+    t.bigint "source_id", null: false
+    t.bigint "category_id", null: false
+    t.bigint "event_id"
+    t.string "source_url", null: false
+    t.string "fingerprint"
+    t.string "title", null: false
+    t.text "intro"
+    t.text "text"
+    t.string "original_title"
+    t.text "original_intro"
+    t.text "original_text"
+    t.string "source_image_url"
+    t.string "image"
+    t.datetime "published_at"
+    t.string "status", default: "pending", null: false
+    t.string "match_key"
+    t.jsonb "entities", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_source_articles_on_category_id"
+    t.index ["event_id", "status"], name: "index_source_articles_on_event_id_and_status"
+    t.index ["event_id"], name: "index_source_articles_on_event_id"
+    t.index ["fingerprint"], name: "index_source_articles_on_fingerprint", unique: true, where: "(fingerprint IS NOT NULL)"
+    t.index ["match_key"], name: "index_source_articles_on_match_key"
+    t.index ["published_at"], name: "index_source_articles_on_published_at"
+    t.index ["source_id"], name: "index_source_articles_on_source_id"
+    t.index ["source_url"], name: "index_source_articles_on_source_url", unique: true
+    t.index ["status"], name: "index_source_articles_on_status"
   end
 
   create_table "sources", force: :cascade do |t|
@@ -112,6 +185,15 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_07_234000) do
     t.index ["url"], name: "index_sources_on_url"
   end
 
+  create_table "topics", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_topics_on_name", unique: true
+    t.index ["slug"], name: "index_topics_on_slug", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -127,7 +209,14 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_07_234000) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "event_topics", "events"
+  add_foreign_key "event_topics", "topics"
+  add_foreign_key "events", "categories"
   add_foreign_key "posts", "categories"
+  add_foreign_key "posts", "events"
   add_foreign_key "posts", "sources"
+  add_foreign_key "source_articles", "categories"
+  add_foreign_key "source_articles", "events"
+  add_foreign_key "source_articles", "sources"
   add_foreign_key "sources", "categories"
 end

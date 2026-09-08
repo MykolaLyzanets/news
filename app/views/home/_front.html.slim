@@ -12,8 +12,6 @@ section.hero
           p.story__meta
             strong = post.category.name
             |  • #{story_time(post)}
-            - if post.credit_name.present?
-              |  • #{post.credit_name}
 
     article.hero__lead
       - if @lead.photo?

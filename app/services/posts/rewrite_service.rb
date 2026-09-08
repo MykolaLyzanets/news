@@ -23,13 +23,7 @@ module Posts
       title = parsed['title'].to_s.strip
       return { ok: false, error: 'Bad AI title' } if title.blank?
 
-      @post.update!(
-        title:,
-        intro: @post.source_text.to_s.squish.truncate_words(36, omission: '…'),
-        text: @post.source_text,
-        minutes: [(@post.source_text.to_s.split.size / 200.0).ceil, 1].max,
-        ai_done: true
-      )
+      @post.update!(title:, ai_done: true)
       { ok: true }
     rescue StandardError => e
       { ok: false, error: e.message }
