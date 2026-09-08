@@ -9,6 +9,7 @@ h1.admin__h Admin
   .admin__card
     p Published today
     strong #{@posts_today}/#{@daily_limit}
+    p.admin__hint = @today_by_category.map { |category, count| "#{category.name} #{count}/#{@per_category_limit}" }.join(' · ')
   .admin__card
     p Open events
     strong = @events_open
@@ -26,7 +27,7 @@ h1.admin__h Admin
   = button_to 'AI rewrite all new', rewrite_all_admin_posts_path, method: :post, class: 'admin__btn'
   = link_to 'Events', admin_events_path, class: 'admin__btn admin__btn--ghost'
   = link_to 'New Source', new_admin_source_path, class: 'admin__btn admin__btn--ghost'
-p.admin__hint Auto every 15 min: fetch candidates, cluster events, then publish only the best stories within the daily cap. AI rewrite of headlines is still optional in Posts.
+p.admin__hint Auto every 15 min: fetch candidates, cluster events, then publish up to #{NewsDesk::Config.per_category_limit} stories per category within the daily cap of #{NewsDesk::Config.daily_limit}. AI rewrite of headlines is still optional in Posts.
 ul.admin__list
   - @sources.each do |source|
     li class=('is-off' unless source.active?)

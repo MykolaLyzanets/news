@@ -6,6 +6,10 @@ module NewsDesk
       int('NEWS_DAILY_POST_LIMIT', 20)
     end
 
+    def self.per_category_limit
+      int('NEWS_PER_CATEGORY_LIMIT', 3)
+    end
+
     def self.daily_target
       int('NEWS_DAILY_TARGET', 15)
     end

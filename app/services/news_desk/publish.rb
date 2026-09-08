@@ -22,6 +22,7 @@ module NewsDesk
 
         outcome = finalize_new(reserved, payload)
         break if outcome == :full
+        next if outcome == :category_full
 
         published << outcome if outcome
       end
@@ -42,7 +43,7 @@ module NewsDesk
 
     def publish_new(event)
       reserved = reserve(event)
-      return reserved if reserved == :full
+      return reserved if %i[full category_full].include?(reserved)
       return unless reserved.is_a?(Event)
 
       payload = build_article(reserved, replacing: false)
@@ -70,6 +71,9 @@ module NewsDesk
         target = event ? Event.lock.find_by(id: event.id) : lock_next_eligible
         return :none unless target
         return if target.post
+        held = Quota.occupancy_in(target.category_id)
+        held -= 1 if target.status == 'publishing'
+        return :category_full if held >= Config.per_category_limit
 
         target.touch if target.status == 'publishing'
         target.update!(status: 'publishing') unless target.status == 'publishing'
@@ -81,6 +85,7 @@ module NewsDesk
       ranked_eligible.each do |item|
         locked = Event.lock.find_by(id: item.id)
         next if locked.nil? || locked.post || locked.status == 'publishing'
+        next if Quota.category_full?(locked.category_id)
 
         return locked
       end
@@ -88,18 +93,21 @@ module NewsDesk
     end
 
     def ranked_eligible
-      counts = Post.published_today.group(:category_id).count
+      counts = Quota.occupancy_by_category
       Event.open_desk.recent.includes(:source_articles, :sources, :category, :post)
-           .select { |event| eligible?(event) }
-           .sort_by { |event| [event.breaking? ? 0 : 1, -event.score, counts[event.category_id].to_i, event.id] }
+           .select { |event| eligible?(event, counts) }
+           .sort_by { |event| [counts[event.category_id].to_i, event.breaking? ? 0 : 1, -event.score, event.id] }
     end
 
-    def eligible?(event)
+    def eligible?(event, counts = nil)
       return false if event.post.present?
       return false if event.score < Config.min_score
       return false if event.ai_attempts >= Config.ai_retries
       return false if %w[failed ignored publishing].include?(event.status)
       return false if event.source_articles.none?(&:full_story?)
+
+      counts ||= Quota.occupancy_by_category
+      return false if counts[event.category_id].to_i >= Config.per_category_limit
 
       breaking_ready?(event) || gathered?(event)
     end
@@ -128,6 +136,11 @@ module NewsDesk
         if Quota.used >= Config.daily_limit
           release_reservation(event)
           return :full
+        end
+
+        if Quota.category_used_full?(event.category_id)
+          release_reservation(event)
+          return :category_full
         end
 
         post = insert_post(event, payload)

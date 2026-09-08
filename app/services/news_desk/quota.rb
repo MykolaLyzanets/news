@@ -24,6 +24,43 @@ module NewsDesk
       occupancy >= Config.daily_limit
     end
 
+    def self.used_by_category
+      Post.published_today.group(:category_id).count
+    end
+
+    def self.reserved_by_category
+      Event.where(status: 'publishing').group(:category_id).count
+    end
+
+    def self.occupancy_by_category
+      used_by_category.merge(reserved_by_category) { |_id, live, held| live + held }
+    end
+
+    def self.used_in(category_id)
+      used_by_category[category_id].to_i
+    end
+
+    def self.occupancy_in(category_id)
+      occupancy_by_category[category_id].to_i
+    end
+
+    def self.category_full?(category_id)
+      occupancy_in(category_id) >= Config.per_category_limit
+    end
+
+    def self.category_used_full?(category_id)
+      used_in(category_id) >= Config.per_category_limit
+    end
+
+    def self.message(code)
+      case code
+      when :full
+        'Daily publication limit reached'
+      when :category_full
+        "This category already has #{Config.per_category_limit} stories today"
+      end
+    end
+
     def self.with_lock
       Lock.with(Config.quota_lock) do
         expire_stale!
@@ -36,6 +73,7 @@ module NewsDesk
         post = Post.lock.find(post.id)
         return post if post.published?
         return :full if used >= Config.daily_limit
+        return :category_full if category_used_full?(post.category_id)
 
         post.update!(published: true, date: post.date || Time.current)
         sync_event!(post)

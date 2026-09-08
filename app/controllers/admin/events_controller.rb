@@ -25,8 +25,8 @@ module Admin
     def publish
       if @event.post
         result = NewsDesk::Quota.claim_publication!(@event.post)
-        if result == :full
-          redirect_to admin_event_path(@event), alert: 'Daily publication limit reached'
+        if result.is_a?(Symbol)
+          redirect_to admin_event_path(@event), alert: NewsDesk::Quota.message(result)
         else
           redirect_to admin_event_path(@event), notice: 'Event published'
         end

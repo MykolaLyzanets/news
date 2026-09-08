@@ -1,7 +1,7 @@
 .admin__head
   .admin__head-copy
     h1.admin__h Events
-    p.admin__muted #{@total} #{'event'.pluralize(@total)} · today #{Post.published_today.count}/#{NewsDesk::Config.daily_limit}
+    p.admin__muted #{@total} #{'event'.pluralize(@total)} · today #{Post.published_today.count}/#{NewsDesk::Config.daily_limit} · #{NewsDesk::Config.per_category_limit} per category
 
 nav.admin__tabs
   = link_to 'All', admin_events_path, class: admin_tab_on?(params[:status].blank?)

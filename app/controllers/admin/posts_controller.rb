@@ -33,8 +33,8 @@ module Admin
         return
       end
 
-      if going_live && NewsDesk::Quota.claim_publication!(@post.reload) == :full
-        redirect_to edit_admin_post_path(@post), alert: 'Daily publication limit reached'
+      if going_live && (block = NewsDesk::Quota.claim_publication!(@post.reload)).is_a?(Symbol)
+        redirect_to edit_admin_post_path(@post), alert: NewsDesk::Quota.message(block)
         return
       end
 
@@ -76,8 +76,8 @@ module Admin
 
     def publish
       result = NewsDesk::Quota.claim_publication!(@post)
-      if result == :full
-        redirect_back fallback_location: admin_posts_path, alert: 'Daily publication limit reached'
+      if result.is_a?(Symbol)
+        redirect_back fallback_location: admin_posts_path, alert: NewsDesk::Quota.message(result)
       else
         back_to_posts 'Post is live'
       end

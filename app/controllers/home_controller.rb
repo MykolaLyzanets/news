@@ -17,7 +17,7 @@ class HomeController < ApplicationController
     used.concat(@business_posts.map(&:id))
 
     @most_posts = Post.visible.fresh.includes(:category).popular.limit(4)
-    @archive = unused(posts, used).first
+    @archive = unused(posts, used).first || @lead
   end
 
   def not_found
