@@ -48,4 +48,4 @@ article.story-page
                 span.most-today__num = format('%02d', i + 1)
                 div
                   h3 = link_to item.title, article_path(item)
-                  p.story__meta = "#{item.category.name} • #{item.views} views"
+                  p.story__meta = "#{item.category.name} • #{number_with_delimiter(display_readers(item))} views"

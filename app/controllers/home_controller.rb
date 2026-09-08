@@ -16,9 +16,7 @@ class HomeController < ApplicationController
     @business_posts = unused(posts, used).select { |post| %w[business technology].include?(post.category.url) }.first(4)
     used.concat(@business_posts.map(&:id))
 
-    @most_posts = unused(Post.visible.fresh.includes(:category).popular.to_a, used).first(4)
-    used.concat(@most_posts.map(&:id))
-
+    @most_posts = Post.visible.fresh.includes(:category).popular.limit(4)
     @archive = unused(posts, used).first
   end
 

@@ -12,7 +12,7 @@
               div
                 p.kicker = post.label.presence || post.category.name
                 h3 = link_to post.title, article_path(post)
-                p.story__meta #{post.views} readers • #{post.minutes} min read
+                p.story__meta #{number_with_delimiter(display_readers(post))} readers • #{post.minutes} min read
       - archive = @archive
       - if archive
         aside.archive

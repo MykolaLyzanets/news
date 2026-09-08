@@ -43,6 +43,10 @@ module ApplicationHelper
     post.date.strftime('%b %-d')
   end
 
+  def display_readers(post)
+    2_000 + ((post.id * 7_919) % 7_001)
+  end
+
   def post_image_tag(post, **opts)
     opts = opts.reverse_merge(alt: post.title)
     if post.image.present?
