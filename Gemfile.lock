@@ -497,7 +497,7 @@ DEPENDENCIES
   i18n (~> 1.14, >= 1.14.1)
   jsbundling-rails
   letter_opener_web (~> 2.0)
-  meta-tags
+  meta-tags (~> 2.24)
   mini_magick (~> 4.13)
   pg (~> 1.4.5)
   pry (~> 0.14.2)
