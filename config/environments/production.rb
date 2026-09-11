@@ -102,4 +102,6 @@ Rails.application.configure do
   config.active_record.dump_schema_after_migration = false
 
   config.hosts << '46.225.14.15'
+  config.hosts << 'lyzfol.com'
+  config.hosts << 'www.lyzfol.com'
 end
