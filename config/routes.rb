@@ -42,20 +42,27 @@ Rails.application.routes.draw do
     request.original_url.sub('www.', '')
   }, constraints: { host: /^www\./ }
 
-  scope '(:locale)', locale: /(#{I18n.available_locales.map(&:to_s).join('|')})/ do
-    root 'home#index'
-    get 'privacy', to: 'pages#privacy', as: :privacy
-    get 'terms', to: 'pages#terms', as: :terms
-    get 'articles/:id', to: 'articles#show', as: :article
-    get 'topics/:id', to: 'topics#show', as: :topic
-    get ':section', to: 'categories#show', as: :section,
-        constraints: { section: /world|politics|business|technology|science|culture|sport/ }
-
-    match '*path', to: 'home#not_found', via: :all, constraints: lambda { |req|
-      path = req.path
-      path.exclude?('uploads') &&
-        !path.start_with?('/rails/') &&
-        !path.start_with?('/assets/')
+  constraints locale: /en|ua|ru/ do
+    get '/:locale', to: redirect('/', status: 301)
+    get '/:locale/*path', to: redirect(status: 301) { |params, request|
+      suffix = request.query_string.present? ? "?#{request.query_string}" : ''
+      "/#{params[:path]}#{suffix}"
     }
   end
+
+  root 'home#index'
+  get 'privacy', to: 'pages#privacy', as: :privacy
+  get 'terms', to: 'pages#terms', as: :terms
+  get 'feed', to: 'feeds#show', defaults: { format: :rss }, as: :feed
+  get 'articles/:id', to: 'articles#show', as: :article
+  get 'topics/:id', to: 'topics#show', as: :topic
+  get ':section', to: 'categories#show', as: :section,
+      constraints: { section: /world|politics|business|technology|science|culture|sport/ }
+
+  match '*path', to: 'home#not_found', via: :all, constraints: lambda { |req|
+    path = req.path
+    path.exclude?('uploads') &&
+      !path.start_with?('/rails/') &&
+      !path.start_with?('/assets/')
+  }
 end

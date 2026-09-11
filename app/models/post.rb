@@ -51,7 +51,7 @@ class Post < ApplicationRecord
   end
 
   def photo?
-    real_image? || NewsSources::Image.usable?(source_image_url)
+    real_image?
   end
 
   def real_image?
@@ -100,19 +100,11 @@ class Post < ApplicationRecord
   end
 
   def lead_in
-    return intro if intro.present?
-
-    body = text.to_s.squish
-    return if body.blank?
-
-    sentences = body.split(/(?<=[.!?])\s+/)
-    return if sentences.size <= 2
-
-    sentences.first(2).join(' ')
+    intro.presence
   end
 
   def related_topics
-    event&.topics.to_a || []
+    event&.topics.to_a.first(4) || []
   end
 
   private

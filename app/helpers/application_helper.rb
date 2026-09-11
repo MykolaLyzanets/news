@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module ApplicationHelper
+  SITE_NAME = 'Lyzfol'
+  SITE_ORIGIN = ENV.fetch('SITEMAP_HOST', 'https://lyzfol.com')
+
   SECTION_NAV = [
     ['Home', 'home'],
     ['World', 'world'],
@@ -19,8 +22,6 @@ module ApplicationHelper
   def current_section
     return params[:section] if controller_name == 'categories'
     return @post.category.url if article_page?
-    return 'home' if controller_name == 'articles'
-    return 'home' if controller_name == 'topics'
 
     'home'
   end
@@ -43,20 +44,15 @@ module ApplicationHelper
     post.date.strftime('%b %-d')
   end
 
-  def display_readers(post)
-    2_000 + ((post.id * 7_919) % 7_001)
-  end
-
   def post_image_tag(post, **opts)
-    opts = opts.reverse_merge(alt: post.title)
-    if post.image.present?
-      image_tag post.image.url, **opts
-    elsif post.source_image_url.present?
-      image_tag post.source_image_url, opts.merge(onerror: 'this.remove()')
-    end
+    return unless post.real_image?
+
+    opts = opts.reverse_merge(alt: post.title, loading: 'lazy', decoding: 'async')
+    image_tag post.image.url, **opts
   end
 
   def page_meta_tags
+    image = page_share_image
     tags = {
       title: page_title,
       description: page_description,
@@ -64,7 +60,6 @@ module ApplicationHelper
       viewport: 'width=device-width, initial-scale=1',
       icon: [
         { href: '/favicon.ico', type: 'image/x-icon' },
-        { href: '/favicon.jpeg', type: 'image/jpeg' },
         { href: '/favicon.png', type: 'image/png', sizes: '32x32' },
         { href: '/apple-touch-icon.png', rel: 'apple-touch-icon', sizes: '180x180', type: 'image/png' }
       ],
@@ -72,40 +67,51 @@ module ApplicationHelper
         title: :title,
         description: :description,
         type: article_page? ? 'article' : 'website',
-        url: canonical_url
+        url: canonical_url,
+        site_name: SITE_NAME,
+        locale: 'en_GB'
+      },
+      twitter: {
+        card: image.present? ? 'summary_large_image' : 'summary',
+        title: :title,
+        description: :description
       }
     }
-    image = article_page? ? jsonld_image(@post) : nil
-    tags[:og][:image] = image if image.present?
+    if image.present?
+      tags[:og][:image] = image
+      tags[:twitter][:image] = image
+    end
+    if article_page?
+      tags[:article] = {
+        published_time: @post.date&.iso8601,
+        modified_time: @post.updated_at&.iso8601,
+        section: @post.category.name
+      }
+    end
+    tags[:robots] = 'noindex, follow' if noindex_page?
     tags
   end
 
   def page_title
-    if article_page?
-      return "#{@post.category.name}: #{@post.title}"
-    end
-    if topic_page?
-      return "#{@topic.name} — Lyzfol"
-    end
+    return 'Page not found | Lyzfol' if not_found_page?
+    return "#{@post.category.name}: #{@post.title}" if article_page?
+    return "#{@topic.name} | Lyzfol" if topic_page?
     if controller_name == 'pages'
-      return 'Privacy Policy — Lyzfol' if action_name == 'privacy'
-      return 'Terms and Conditions — Lyzfol' if action_name == 'terms'
+      return 'Privacy Policy | Lyzfol' if action_name == 'privacy'
+      return 'Terms and Conditions | Lyzfol' if action_name == 'terms'
     end
-    return 'Latest News, Business Insights & Expert Articles' if current_section == 'home'
     if controller_name == 'categories'
-      return "#{category_seo_name} News, Trends & Expert Insights"
+      base = "#{category_seo_name} News, Trends & Expert Insights"
+      return @page.to_i > 1 ? "#{base} — Page #{@page}" : base
     end
 
-    "#{current_section.to_s.titleize} — Lyzfol"
+    'Latest News, Business Insights & Expert Articles'
   end
 
   def page_description
-    if article_page?
-      return @post.meta_description
-    end
-    if topic_page?
-      return "Coverage of #{@topic.name} from Lyzfol."
-    end
+    return 'The page you requested is not available on Lyzfol.' if not_found_page?
+    return @post.meta_description if article_page?
+    return "Lyzfol coverage related to #{@topic.name}." if topic_page?
     if controller_name == 'pages' && action_name == 'privacy'
       return 'How Lyzfol collects, uses and protects personal information when you read news on lyzfol.com.'
     end
@@ -132,32 +138,153 @@ module ApplicationHelper
   end
 
   def canonical_url
-    "#{request.base_url}#{request.path}"
+    return root_url if not_found_page?
+
+    url = "#{canonical_origin}#{canonical_path}"
+    url += "?page=#{@page}" if category_paginated?
+    url
   end
 
-  def news_article_jsonld(post)
+  def page_jsonld
+    graph = [organization_schema, website_schema]
+    graph << news_article_schema(@post) if article_page?
+    graph << breadcrumb_schema if breadcrumbs.present?
+    { '@context' => 'https://schema.org', '@graph' => graph }.to_json
+  end
+
+  def breadcrumbs
+    return [] if not_found_page?
+
+    crumbs = [{ name: 'Home', url: root_url }]
+    if article_page?
+      crumbs << { name: @post.category.name, url: section_url(@post.category.url) }
+      crumbs << { name: @post.title, url: canonical_url }
+    elsif controller_name == 'categories' && @section.present?
+      crumbs << { name: category_seo_name, url: canonical_url }
+    elsif topic_page?
+      crumbs << { name: @topic.name, url: canonical_url }
+    elsif controller_name == 'pages' && action_name == 'privacy'
+      crumbs << { name: 'Privacy Policy', url: canonical_url }
+    elsif controller_name == 'pages' && action_name == 'terms'
+      crumbs << { name: 'Terms and Conditions', url: canonical_url }
+    else
+      return []
+    end
+    crumbs
+  end
+
+  def source_credits_links(post)
+    links = post.source_credits.map do |credit|
+      if credit[:url].present?
+        link_to(credit[:name], credit[:url], rel: 'nofollow noopener noreferrer', target: '_blank')
+      else
+        credit[:name]
+      end
+    end
+    safe_join(links, ', ')
+  end
+
+  private
+
+  def noindex_page?
+    @noindex.present? || topic_page? || not_found_page?
+  end
+
+  def not_found_page?
+    @not_found.present? || action_name == 'not_found'
+  end
+
+  def category_paginated?
+    controller_name == 'categories' && @page.to_i > 1
+  end
+
+  def canonical_origin
+    return SITE_ORIGIN if Rails.env.production?
+
+    request.base_url
+  end
+
+  def canonical_path
+    path = request.path.chomp('/')
+    path.presence || '/'
+  end
+
+  def page_share_image
+    if article_page?
+      jsonld_image(@post)
+    elsif controller_name == 'home' && @lead
+      jsonld_image(@lead)
+    elsif controller_name == 'categories' && @lead_post
+      jsonld_image(@lead_post)
+    end
+  end
+
+  def jsonld_image(post)
+    return unless post&.real_image?
+
+    url = post.image.url.to_s
+    url.start_with?('http') ? url : "#{canonical_origin}#{url}"
+  end
+
+  def publisher_schema
+    {
+      '@type' => 'Organization',
+      '@id' => "#{SITE_ORIGIN}/#organization",
+      'name' => SITE_NAME,
+      'url' => root_url,
+      'logo' => {
+        '@type' => 'ImageObject',
+        'url' => "#{SITE_ORIGIN}/apple-touch-icon.png",
+        'width' => 180,
+        'height' => 180
+      }
+    }
+  end
+
+  def organization_schema
+    publisher_schema
+  end
+
+  def website_schema
+    {
+      '@type' => 'WebSite',
+      '@id' => "#{SITE_ORIGIN}/#website",
+      'name' => SITE_NAME,
+      'url' => root_url,
+      'inLanguage' => 'en',
+      'publisher' => { '@id' => "#{SITE_ORIGIN}/#organization" }
+    }
+  end
+
+  def news_article_schema(post)
     data = {
-      '@context' => 'https://schema.org',
       '@type' => 'NewsArticle',
       'headline' => post.title,
       'description' => post.meta_description,
       'datePublished' => post.date&.iso8601,
       'dateModified' => post.updated_at&.iso8601,
-      'mainEntityOfPage' => article_url(post),
-      'author' => { '@type' => 'Organization', 'name' => 'Lyzfol' },
-      'publisher' => { '@type' => 'Organization', 'name' => 'Lyzfol' }
+      'inLanguage' => 'en',
+      'articleSection' => post.category.name,
+      'mainEntityOfPage' => canonical_url,
+      'author' => { '@id' => "#{SITE_ORIGIN}/#organization" },
+      'publisher' => { '@id' => "#{SITE_ORIGIN}/#organization" }
     }
     image = jsonld_image(post)
     data['image'] = image if image.present?
-    data.to_json
+    data
   end
 
-  def jsonld_image(post)
-    if post.real_image?
-      url = post.image.url.to_s
-      url.start_with?('http') ? url : "#{request.base_url}#{url}"
-    else
-      post.source_image_url.presence
-    end
+  def breadcrumb_schema
+    {
+      '@type' => 'BreadcrumbList',
+      'itemListElement' => breadcrumbs.each_with_index.map do |crumb, index|
+        {
+          '@type' => 'ListItem',
+          'position' => index + 1,
+          'name' => crumb[:name],
+          'item' => crumb[:url]
+        }
+      end
+    }
   end
 end

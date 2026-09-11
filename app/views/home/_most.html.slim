@@ -4,7 +4,6 @@
       .most__list
         .section-head
           h2.section-head__caps Most Read This Week
-          span.section-head__note Verified Broadsheet Traffic
         ol
           - @most_posts.each_with_index do |post, i|
             li
@@ -12,7 +11,7 @@
               div
                 p.kicker = post.label.presence || post.category.name
                 h3 = link_to post.title, article_path(post)
-                p.story__meta #{number_with_delimiter(display_readers(post))} readers • #{post.minutes} min read
+                p.story__meta #{story_time(post)} • #{post.minutes} min read
       - archive = @archive
       - if archive
         aside.archive

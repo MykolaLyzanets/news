@@ -30,12 +30,16 @@
 .hero__figure {
   position: relative;
   margin-bottom: 0.9rem;
+  overflow: hidden;
+  aspect-ratio: #{"16 / 9"};
+  background: #eceae3;
 }
 
 .hero__figure img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
 }
 
 .hero__caption {

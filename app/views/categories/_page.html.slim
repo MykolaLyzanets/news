@@ -6,9 +6,9 @@ section.desk-hero
   section.cat-lead
     .container.cat-lead__grid
       article.cat-lead__main
-        - if @lead_post.photo?
+        - if @lead_post.real_image?
           figure.cat-lead__figure
-            = post_image_tag @lead_post, alt: @lead_post.title
+            = post_image_tag @lead_post, alt: @lead_post.title, loading: 'eager', fetchpriority: 'high'
         p.kicker.kicker--accent = @lead_post.label.presence || @lead_post.category.name
         h2 = link_to @lead_post.title, article_path(@lead_post)
         p.cat-lead__dek = @lead_post.excerpt(40)
@@ -23,13 +23,13 @@ section.cat-feed
     .section-head
       h2.section-head__caps
         span.cat-feed__mark
-        | Latest from Lyzfol & Scoops
+        | Latest from Lyzfol
     - if @feed_posts.present?
       ol.cat-feed__list
         - @feed_posts.each do |post|
           li
             article.cat-item
-              - if post.photo?
+              - if post.real_image?
                 figure.cat-item__media
                   = post_image_tag post, alt: post.title
               div
@@ -43,11 +43,11 @@ section.cat-feed
     - if @pages.to_i > 1
       nav.cat-pager aria-label="Pagination"
         - if @page > 1
-          = link_to 'Prev', section_path(@section, page: @page - 1), class: 'cat-pager__btn'
+          = link_to 'Prev', (@page == 2 ? section_path(@section) : section_path(@section, page: @page - 1)), class: 'cat-pager__btn', rel: 'prev'
         - else
           span.cat-pager__btn Prev
         span Page #{@page} of #{@pages}
         - if @page < @pages
-          = link_to 'Next', section_path(@section, page: @page + 1), class: 'cat-pager__btn'
+          = link_to 'Next', section_path(@section, page: @page + 1), class: 'cat-pager__btn', rel: 'next'
         - else
           span.cat-pager__btn Next

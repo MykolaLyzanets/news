@@ -21,6 +21,18 @@
   font-size: 0.78rem;
 }
 
+.site-footer__nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem 1.1rem;
+  padding: 0 0 1.1rem;
+  font-size: 0.82rem;
+}
+
+.site-footer__nav a:hover {
+  color: var(--red);
+}
+
 .site-footer__legal {
   display: flex;
   flex-wrap: wrap;

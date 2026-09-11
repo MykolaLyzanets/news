@@ -10,9 +10,11 @@ class TopicsController < ApplicationController
               Post.none
             end
     @posts = posts.limit(40).to_a
-    return render template: 'home/not_found', status: :not_found if @topic.blank? || @posts.empty?
+    return render_not_found if @topic.blank? || @posts.empty?
 
-    @lead_post = @posts.find(&:photo?) || @posts.first
+    @noindex = true
+
+    @lead_post = @posts.find(&:real_image?) || @posts.first
     @coverage = @posts.reject { |post| post.id == @lead_post.id }
     @related = NewsDesk::Related.call(@lead_post)
     @most_read = Post.visible.fresh.includes(:category).popular.limit(5)

@@ -16,15 +16,16 @@ SitemapGenerator::Sitemap.create do
     add section_path(section: section), changefreq: 'hourly', priority: 0.8, lastmod: lastmod
   end
 
-  topic_ids = Topic.joins(:posts).merge(Post.visible).distinct.pluck(:id)
-  Topic.where(id: topic_ids).find_each do |topic|
-    add topic_path(id: topic.to_param),
-        changefreq: 'daily',
-        priority: 0.6,
-        lastmod: topic.posts.visible.maximum(:updated_at)
-  end
-
   Post.visible.find_each do |post|
-    add article_path(id: post.to_param), changefreq: 'daily', priority: 0.7, lastmod: post.updated_at
+    options = { changefreq: 'daily', priority: 0.7, lastmod: post.updated_at }
+    if post.date.present? && post.date >= 2.days.ago
+      options[:news] = {
+        publication_name: 'Lyzfol',
+        publication_language: 'en',
+        title: post.title,
+        publication_date: post.date
+      }
+    end
+    add article_path(id: post.to_param), options
   end
 end

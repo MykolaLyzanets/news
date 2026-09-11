@@ -8,7 +8,7 @@ article.story-page
         - if @lead_post
           p.story-head__dek = @lead_post.excerpt(36)
       - if @lead_post
-        - if @lead_post.photo?
+        - if @lead_post.real_image?
           figure.story-hero
             = post_image_tag @lead_post, alt: @lead_post.title
         .story-body
@@ -21,7 +21,7 @@ article.story-page
           h2 Related Coverage
           - @coverage.each do |item|
             article.related-cov__item
-              - if item.photo?
+              - if item.real_image?
                 = post_image_tag item, alt: item.title
               div
                 p.kicker = item.label.presence || item.category.name
@@ -33,7 +33,7 @@ article.story-page
           h2 Related Coverage
           - @related.each do |item|
             article.related-cov__item
-              - if item.photo?
+              - if item.real_image?
                 = post_image_tag item, alt: item.title
               div
                 p.kicker = item.label.presence || item.category.name
@@ -48,4 +48,4 @@ article.story-page
                 span.most-today__num = format('%02d', i + 1)
                 div
                   h3 = link_to item.title, article_path(item)
-                  p.story__meta = "#{item.category.name} • #{number_with_delimiter(display_readers(item))} views"
+                  p.story__meta = "#{item.category.name} • #{story_time(item)}"

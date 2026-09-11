@@ -281,3 +281,31 @@ main {
 .tab-panel[hidden] {
   display: none !important;
 }
+
+.crumbs {
+  padding: 0.9rem 0 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.45rem;
+  list-style: none;
+  padding: 0;
+}
+
+.crumbs li:not(:last-child)::after {
+  content: "/";
+  margin-left: 0.45rem;
+  color: #b3b3b3;
+}
+
+.crumbs a:hover {
+  color: var(--ink);
+}
+
+.crumbs [aria-current="page"] {
+  color: var(--ink);
+}

@@ -28,11 +28,12 @@ module Ai
         Do not rewrite any source sentence by sentence. Do not synonym-spin.
         Do not copy unique phrasing or the source structure. Do not invent facts.
         Use concise news English.
-        Do not name, cite, or link news outlets. Do not write "according to" a publication.
-        Write as this site's own report.
-        Choose a useful structure for this event. Suggested sections if they fit:
-        lead, what happened, why it matters, what we know, what's next.
-        Pick length from confirmed facts: short 200-350 words, normal 350-600, important 600-1000.
+        Attribute facts to named sources when the facts include them.
+        Do not hide that reporting is based on multiple accounts.
+        Write as this site's own report, not as a copy of another outlet.
+        Use short paragraphs. Put two or three section headings in the text
+        on their own lines in Title Case when the facts support it.
+        Pick length from confirmed facts: short 220-350 words, normal 350-600, important 600-1000.
         Do not pad. JSON only:
         {"title":"...","intro":"...","text":"..."}
         Event: #{event.title}

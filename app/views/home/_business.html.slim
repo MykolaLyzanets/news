@@ -5,7 +5,7 @@ section.business
     .business__grid
       - deep = @business_posts.first
       article.deep
-        - if deep.photo?
+        - if deep.real_image?
           = post_image_tag deep, alt: deep.title
         p.kicker.kicker--mark = deep.label.presence || deep.category.name
         h3 = link_to deep.title, article_path(deep)

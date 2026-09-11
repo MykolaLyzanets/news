@@ -55,7 +55,7 @@ module NewsDesk
     end
 
     def self.min_publish_words
-      int('NEWS_MIN_PUBLISH_WORDS', 120)
+      int('NEWS_MIN_PUBLISH_WORDS', 220)
     end
 
     def self.quota_lock

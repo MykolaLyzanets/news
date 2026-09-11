@@ -3,8 +3,8 @@
 class HomeController < ApplicationController
   def index
     posts = Post.visible.fresh.includes(:category, :source).newest.to_a
-    pictured = posts.select(&:photo?)
-    @lead = pictured.find(&:main) || pictured.first
+    pictured = posts.select(&:real_image?)
+    @lead = pictured.find(&:main) || pictured.first || posts.find(&:main) || posts.first
     used = [@lead&.id].compact
 
     @rail = unused(posts, used).first(2)
@@ -21,7 +21,7 @@ class HomeController < ApplicationController
   end
 
   def not_found
-    render template: 'home/not_found', status: :not_found
+    render_not_found
   end
 
   private

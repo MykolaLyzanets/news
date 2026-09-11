@@ -50,14 +50,32 @@
   line-height: 1.45;
 }
 
+.story-head__byline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.9rem;
+  margin-top: 0.85rem;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+}
+
+.story-head__byline time {
+  color: var(--ink);
+}
+
 .story-hero {
   margin: 1.4rem 0 0;
+  overflow: hidden;
+  aspect-ratio: #{"16 / 9"};
+  background: #eceae3;
 }
 
 .story-hero img {
   display: block;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
 }
 
 .story-hero__cap {

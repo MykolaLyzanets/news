@@ -3,7 +3,7 @@ section.hero
     .hero__rail
       - @rail.each do |post|
         article.story
-          - if post.photo?
+          - if post.real_image?
             figure.story__media
               = post_image_tag post, alt: post.title
           p.kicker = post.label.presence || post.category.name
@@ -14,9 +14,9 @@ section.hero
             |  • #{story_time(post)}
 
     article.hero__lead
-      - if @lead.photo?
+      - if @lead.real_image?
         figure.hero__figure
-          = post_image_tag @lead, alt: @lead.title
+          = post_image_tag @lead, alt: @lead.title, loading: 'eager', fetchpriority: 'high'
       p.kicker.kicker--mark = @lead.label.presence || @lead.category.name
       h1.hero__headline
         = link_to @lead.title, article_path(@lead)

@@ -1,11 +1,10 @@
 doctype html
-html lang="#{I18n.locale}"
+html lang="en"
   head
     = display_meta_tags page_meta_tags
-    - if article_page?
-      script type="application/ld+json"
-        == news_article_jsonld(@post)
-
+    link rel="alternate" type="application/rss+xml" title="Lyzfol RSS" href=feed_url
+    script type="application/ld+json"
+      == page_jsonld
     link rel="preconnect" href="https://fonts.googleapis.com"
     link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""
     link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet"
@@ -20,5 +19,7 @@ html lang="#{I18n.locale}"
     .site
       = render 'layouts/header'
       main
+        - if breadcrumbs.present?
+          = render 'layouts/breadcrumbs'
         = yield
       = render 'layouts/footer'

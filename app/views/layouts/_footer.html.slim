@@ -2,9 +2,14 @@ footer.site-footer
   .container
     .site-footer__brand
       p.site-footer__logo Lyzfol
-      p.site-footer__tag Archival broadsheet journalism, rigorous standards, independent investigative integrity.
+      p.site-footer__tag Independent news coverage of world, politics, business, technology, science, culture and sport.
+    nav.site-footer__nav aria-label="Sections"
+      = link_to 'Latest', root_path
+      - section_nav.reject { |_label, id| id == 'home' }.each do |label, id|
+        = link_to label, section_href(id)
     .site-footer__legal
-      p © #{Time.current.year} Lyzfol Publishing Group. All rights reserved.
+      p © #{Time.current.year} Lyzfol. All rights reserved.
       nav.site-footer__links
         = link_to 'Privacy Policy', privacy_path
         = link_to 'Terms and Conditions', terms_path
+        = link_to 'RSS', feed_path

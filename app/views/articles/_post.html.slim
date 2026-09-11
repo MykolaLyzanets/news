@@ -7,11 +7,17 @@ article.story-page
           - if post.note.present?
             span.story-head__desk = post.note
         h1.story-head__title = post.title
+        p.story-head__byline
+          span Lyzfol
+          - if post.date.present?
+            time datetime=post.date.iso8601 = post.date.strftime('%B %-d, %Y, %H:%M %Z')
+          - if post.minutes.positive?
+            span #{post.minutes} min read
         - if post.lead_in.present?
           p.story-head__dek = post.lead_in
-      - if post.photo?
+      - if post.real_image?
         figure.story-hero
-          = post_image_tag post
+          = post_image_tag post, loading: 'eager', fetchpriority: 'high'
       .story-body
         = simple_format(post.text)
         - if post.quote.present?
@@ -19,22 +25,21 @@ article.story-page
             p = post.quote
             - if post.quote_name.present?
               cite = post.quote_name
+        - if post.source_credits.any?
+          p.story-source
+            | Sources:
+            =< source_credits_links(post)
+        - if @topics.present?
+          p.story-topics
+            | Topics:
+            =< safe_join(@topics.map { |topic| link_to(topic.name, topic_path(topic)) }, ', ')
     aside.story-rail
-      - if @topics.present?
-        section.most-today
-          h2 Topics
-          ol
-            - @topics.each_with_index do |topic, i|
-              li
-                span.most-today__num = format('%02d', i + 1)
-                div
-                  h3 = link_to topic.name, topic_path(topic)
       - if @related.any?
         section.related-cov
           h2 Related Coverage
           - @related.each do |item|
             article.related-cov__item
-              - if item.photo?
+              - if item.real_image?
                 = post_image_tag item
               div
                 p.kicker = item.label.presence || item.category.name
@@ -49,7 +54,7 @@ article.story-page
                 span.most-today__num = format('%02d', i + 1)
                 div
                   h3 = link_to item.title, article_path(item)
-                  p.story__meta = "#{item.category.name} • #{number_with_delimiter(display_readers(item))} views"
+                  p.story__meta = "#{item.category.name} • #{story_time(item)}"
   - if @more.any?
     section.continue
       .container
@@ -57,11 +62,11 @@ article.story-page
           div
             p.kicker.kicker--accent More from the desk
             h2 Continue Reading
-          = link_to 'View all →', section_path(post.category.url), class: 'continue__all'
+          = link_to "More #{post.category.name} news →", section_path(post.category.url), class: 'continue__all'
         .continue__grid
           - @more.each do |card|
             article.continue__card
-              - if card.photo?
+              - if card.real_image?
                 figure.continue__media
                   = post_image_tag card
               .continue__copy

@@ -68,8 +68,8 @@ Rails.application.configure do
 
   config.action_mailer.perform_caching = false
   config.action_mailer.default_url_options = {
-    host: ENV.fetch('APP_HOST', '46.101.232.19'),
-    protocol: 'http'
+    host: ENV.fetch('APP_HOST', 'lyzfol.com'),
+    protocol: 'https'
   }
 
   # Ignore bad email addresses and do not raise email delivery errors.

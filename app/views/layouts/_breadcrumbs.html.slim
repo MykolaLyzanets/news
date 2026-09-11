@@ -1,0 +1,8 @@
+nav.crumbs.container aria-label="Breadcrumb"
+  ol
+    - breadcrumbs.each_with_index do |crumb, index|
+      li
+        - if index == breadcrumbs.size - 1
+          span aria-current="page" = crumb[:name]
+        - else
+          = link_to crumb[:name], crumb[:url]

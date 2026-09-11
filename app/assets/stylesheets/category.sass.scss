@@ -18,12 +18,15 @@
 
 .cat-lead__figure {
   margin: 0 0 1rem;
+  overflow: hidden;
+  aspect-ratio: #{"16 / 9"};
+  background: #eceae3;
 
   img {
     display: block;
     width: 100%;
-    height: auto;
-    background: #eceae3;
+    height: 100%;
+    object-fit: cover;
   }
 }
 
