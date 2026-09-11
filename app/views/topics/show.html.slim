@@ -8,7 +8,7 @@ article.story-page
         - if @lead_post
           p.story-head__dek = @lead_post.excerpt(36)
       - if @lead_post
-        - if @lead_post.real_image?
+        - if @lead_post.photo?
           figure.story-hero
             = post_image_tag @lead_post, alt: @lead_post.title
         .story-body
@@ -21,7 +21,7 @@ article.story-page
           h2 Related Coverage
           - @coverage.each do |item|
             article.related-cov__item
-              - if item.real_image?
+              - if item.photo?
                 = post_image_tag item, alt: item.title
               div
                 p.kicker = item.label.presence || item.category.name
@@ -33,7 +33,7 @@ article.story-page
           h2 Related Coverage
           - @related.each do |item|
             article.related-cov__item
-              - if item.real_image?
+              - if item.photo?
                 = post_image_tag item, alt: item.title
               div
                 p.kicker = item.label.presence || item.category.name

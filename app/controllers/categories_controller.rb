@@ -17,7 +17,7 @@ class CategoriesController < ApplicationController
     return render_not_found unless @page
 
     @posts = scope.offset((@page - 1) * @per_page).limit(@per_page).to_a
-    @lead_post = @page == 1 ? (@posts.find(&:real_image?) || @posts.first) : nil
+    @lead_post = @page == 1 ? (@posts.find(&:photo?) || @posts.first) : nil
     rest = @posts.reject { |post| post.id == @lead_post&.id }
     @rail_posts = @page == 1 ? rest.first(3) : []
     @feed_posts = rest

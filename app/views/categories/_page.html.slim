@@ -6,7 +6,7 @@ section.desk-hero
   section.cat-lead
     .container.cat-lead__grid
       article.cat-lead__main
-        - if @lead_post.real_image?
+        - if @lead_post.photo?
           figure.cat-lead__figure
             = post_image_tag @lead_post, alt: @lead_post.title, loading: 'eager', fetchpriority: 'high'
         p.kicker.kicker--accent = @lead_post.label.presence || @lead_post.category.name
@@ -29,7 +29,7 @@ section.cat-feed
         - @feed_posts.each do |post|
           li
             article.cat-item
-              - if post.real_image?
+              - if post.photo?
                 figure.cat-item__media
                   = post_image_tag post, alt: post.title
               div

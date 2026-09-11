@@ -3,7 +3,7 @@
 class HomeController < ApplicationController
   def index
     posts = Post.visible.fresh.includes(:category, :source).newest.to_a
-    pictured = posts.select(&:real_image?)
+    pictured = posts.select(&:photo?)
     @lead = pictured.find(&:main) || pictured.first || posts.find(&:main) || posts.first
     used = [@lead&.id].compact
 

@@ -14,7 +14,7 @@ class TopicsController < ApplicationController
 
     @noindex = true
 
-    @lead_post = @posts.find(&:real_image?) || @posts.first
+    @lead_post = @posts.find(&:photo?) || @posts.first
     @coverage = @posts.reject { |post| post.id == @lead_post.id }
     @related = NewsDesk::Related.call(@lead_post)
     @most_read = Post.visible.fresh.includes(:category).popular.limit(5)

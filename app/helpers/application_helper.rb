@@ -45,10 +45,12 @@ module ApplicationHelper
   end
 
   def post_image_tag(post, **opts)
-    return unless post.real_image?
-
     opts = opts.reverse_merge(alt: post.title, loading: 'lazy', decoding: 'async')
-    image_tag post.image.url, **opts
+    if post.real_image?
+      image_tag post.image.url, **opts
+    elsif NewsSources::Image.usable?(post.source_image_url)
+      image_tag post.source_image_url, opts.merge(onerror: 'this.remove()')
+    end
   end
 
   def page_meta_tags
@@ -220,10 +222,14 @@ module ApplicationHelper
   end
 
   def jsonld_image(post)
-    return unless post&.real_image?
+    return unless post
 
-    url = post.image.url.to_s
-    url.start_with?('http') ? url : "#{canonical_origin}#{url}"
+    if post.real_image?
+      url = post.image.url.to_s
+      url.start_with?('http') ? url : "#{canonical_origin}#{url}"
+    else
+      post.source_image_url.presence
+    end
   end
 
   def publisher_schema

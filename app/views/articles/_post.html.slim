@@ -15,7 +15,7 @@ article.story-page
             span #{post.minutes} min read
         - if post.lead_in.present?
           p.story-head__dek = post.lead_in
-      - if post.real_image?
+      - if post.photo?
         figure.story-hero
           = post_image_tag post, loading: 'eager', fetchpriority: 'high'
       .story-body
@@ -39,7 +39,7 @@ article.story-page
           h2 Related Coverage
           - @related.each do |item|
             article.related-cov__item
-              - if item.real_image?
+              - if item.photo?
                 = post_image_tag item
               div
                 p.kicker = item.label.presence || item.category.name
@@ -66,7 +66,7 @@ article.story-page
         .continue__grid
           - @more.each do |card|
             article.continue__card
-              - if card.real_image?
+              - if card.photo?
                 figure.continue__media
                   = post_image_tag card
               .continue__copy

@@ -51,7 +51,7 @@ class Post < ApplicationRecord
   end
 
   def photo?
-    real_image?
+    real_image? || NewsSources::Image.usable?(source_image_url)
   end
 
   def real_image?
