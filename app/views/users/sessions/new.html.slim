@@ -9,7 +9,7 @@ section.auth-card
   = form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: 'auth-form' }) do |f|
     label.auth-form__field
       span Email
-      = f.email_field :email, autofocus: true, autocomplete: 'email', required: true, placeholder: 'name@thedispatch.com'
+      = f.email_field :email, autofocus: true, autocomplete: 'email', required: true, placeholder: 'name@lyzfol.com'
     label.auth-form__field
       span Password
       = f.password_field :password, autocomplete: 'current-password', required: true

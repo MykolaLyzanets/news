@@ -3,3 +3,9 @@ news_desk_cycle:
   class: "NewsDesk::CycleJob"
   queue: default
   description: "Fetch candidates, cluster events, score, publish within the daily cap, rank home lead"
+
+sitemap_refresh:
+  cron: "0 */6 * * *"
+  class: "SitemapRefreshJob"
+  queue: default
+  description: "Regenerate public/sitemap.xml"

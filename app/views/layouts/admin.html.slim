@@ -1,15 +1,17 @@
 doctype html
 html lang="en"
   head
-    title Admin — THE DISPATCH
+    title Admin — Lyzfol
     meta name="viewport" content="width=device-width, initial-scale=1"
+    = favicon_link_tag '/favicon.jpeg', type: 'image/jpeg'
+    link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180"
     = stylesheet_link_tag "application.min", "data-turbo-track": "reload"
     = javascript_include_tag "application", "data-turbo-track": "reload", defer: true
     = csrf_meta_tags
   body.admin-body
     .admin
       aside.admin__side
-        p.admin__brand THE DISPATCH
+        p.admin__brand Lyzfol
         p.admin__sub Admin
         nav.admin__nav
           = link_to 'Home', admin_root_path, class: ('is-on' if controller_name == 'home')

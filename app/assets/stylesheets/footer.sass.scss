@@ -22,8 +22,23 @@
 }
 
 .site-footer__legal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem 1.4rem;
   padding-top: 0.95rem;
   border-top: 1px solid var(--line);
   color: #7a7a7a;
   font-size: 0.7rem;
+}
+
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.15rem;
+}
+
+.site-footer__links a:hover {
+  color: var(--ink);
 }

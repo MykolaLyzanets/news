@@ -1,0 +1,79 @@
+.legal {
+  padding: 2.1rem 0 3.4rem;
+}
+
+.legal__wrap {
+  max-width: 46rem;
+}
+
+.legal__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 3rem);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+}
+
+.legal__updated {
+  margin: 0.75rem 0 1.8rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.legal__body {
+  color: #222;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+.legal__body h2 {
+  margin: 1.8rem 0 0.7rem;
+  font-size: 1.45rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.legal__body h3 {
+  margin: 1.2rem 0 0.55rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+}
+
+.legal__body p + p,
+.legal__body p + ul,
+.legal__body ul + p {
+  margin-top: 1rem;
+}
+
+.legal__body ul {
+  padding-left: 1.2rem;
+}
+
+.legal__body li + li {
+  margin-top: 0.28rem;
+}
+
+.legal__contact {
+  list-style: none;
+  padding-left: 0;
+}
+
+.legal__copy {
+  margin-top: 2.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.legal__body a {
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.legal__body a:hover {
+  color: var(--red);
+}

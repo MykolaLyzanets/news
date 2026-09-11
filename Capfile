@@ -10,6 +10,7 @@ require 'capistrano/puma'
 require 'capistrano/rails/assets'
 require 'capistrano/rails/migrations'
 require 'capistrano/sidekiq'
+require 'capistrano/sitemap_generator'
 
 install_plugin Capistrano::SCM::Git
 

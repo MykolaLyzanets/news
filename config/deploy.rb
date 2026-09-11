@@ -93,4 +93,5 @@ namespace :deploy do
   before :starting,     :check_revision
   after  :finishing,    :compile_assets
   after  :finishing,    :cleanup
+  after  :published,    'sitemap:create'
 end

@@ -1,1 +1,17 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /users
+Disallow: /users/
+Disallow: /sidekiq
+Disallow: /sidekiq/
+Disallow: /letter_opener
+Disallow: /letter_opener/
+Disallow: /rails/
+Disallow: /en/
+Disallow: /ru/
+Disallow: /ua/
+
+Sitemap: https://lyzfol.com/sitemap.xml

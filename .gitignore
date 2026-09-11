@@ -27,6 +27,9 @@
 
 /public/assets
 /public/uploads
+/public/sitemap.xml
+/public/sitemap*.xml
+/public/sitemap*.xml.gz
 
 # Ignore IDEA project files
 .idea/

@@ -44,6 +44,8 @@ Rails.application.routes.draw do
 
   scope '(:locale)', locale: /(#{I18n.available_locales.map(&:to_s).join('|')})/ do
     root 'home#index'
+    get 'privacy', to: 'pages#privacy', as: :privacy
+    get 'terms', to: 'pages#terms', as: :terms
     get 'articles/:id', to: 'articles#show', as: :article
     get 'topics/:id', to: 'topics#show', as: :topic
     get ':section', to: 'categories#show', as: :section,

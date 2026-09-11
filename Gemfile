@@ -77,3 +77,4 @@ gem "connection_pool", "~> 2.4"
 
 gem "devise", "~> 4.9"
 gem 'meta-tags', '~> 2.24'
+gem 'sitemap_generator', '~> 7.1'

@@ -62,6 +62,12 @@ module ApplicationHelper
       description: page_description,
       canonical: canonical_url,
       viewport: 'width=device-width, initial-scale=1',
+      icon: [
+        { href: '/favicon.ico', type: 'image/x-icon' },
+        { href: '/favicon.jpeg', type: 'image/jpeg' },
+        { href: '/favicon.png', type: 'image/png', sizes: '32x32' },
+        { href: '/apple-touch-icon.png', rel: 'apple-touch-icon', sizes: '180x180', type: 'image/png' }
+      ],
       og: {
         title: :title,
         description: :description,
@@ -79,14 +85,18 @@ module ApplicationHelper
       return "#{@post.category.name}: #{@post.title}"
     end
     if topic_page?
-      return "#{@topic.name} — THE DISPATCH"
+      return "#{@topic.name} — Lyzfol"
+    end
+    if controller_name == 'pages'
+      return 'Privacy Policy — Lyzfol' if action_name == 'privacy'
+      return 'Terms and Conditions — Lyzfol' if action_name == 'terms'
     end
     return 'Latest News, Business Insights & Expert Articles' if current_section == 'home'
     if controller_name == 'categories'
       return "#{category_seo_name} News, Trends & Expert Insights"
     end
 
-    "#{current_section.to_s.titleize} — THE DISPATCH"
+    "#{current_section.to_s.titleize} — Lyzfol"
   end
 
   def page_description
@@ -94,7 +104,13 @@ module ApplicationHelper
       return @post.meta_description
     end
     if topic_page?
-      return "Coverage of #{@topic.name} from THE DISPATCH."
+      return "Coverage of #{@topic.name} from Lyzfol."
+    end
+    if controller_name == 'pages' && action_name == 'privacy'
+      return 'How Lyzfol collects, uses and protects personal information when you read news on lyzfol.com.'
+    end
+    if controller_name == 'pages' && action_name == 'terms'
+      return 'Terms and conditions for using Lyzfol, including news content, acceptable use, intellectual property and liability limits.'
     end
     if controller_name == 'categories'
       return "Explore the latest #{category_seo_name.downcase} news, industry trends, expert insights and practical analysis covering the topics, companies and developments that matter."
@@ -128,8 +144,8 @@ module ApplicationHelper
       'datePublished' => post.date&.iso8601,
       'dateModified' => post.updated_at&.iso8601,
       'mainEntityOfPage' => article_url(post),
-      'author' => { '@type' => 'Organization', 'name' => 'THE DISPATCH' },
-      'publisher' => { '@type' => 'Organization', 'name' => 'THE DISPATCH' }
+      'author' => { '@type' => 'Organization', 'name' => 'Lyzfol' },
+      'publisher' => { '@type' => 'Organization', 'name' => 'Lyzfol' }
     }
     image = jsonld_image(post)
     data['image'] = image if image.present?

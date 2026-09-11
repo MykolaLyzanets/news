@@ -1,8 +1,10 @@
 doctype html
 html lang="#{I18n.locale}"
   head
-    title Log in — THE DISPATCH
+    title Log in — Lyzfol
     meta name="viewport" content="width=device-width, initial-scale=1"
+    = favicon_link_tag '/favicon.jpeg', type: 'image/jpeg'
+    link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180"
     link rel="preconnect" href="https://fonts.googleapis.com"
     link rel="preconnect" href="https://fonts.gstatic.com" crossorigin=""
     link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,800;0,900;1,400;1,700&display=swap" rel="stylesheet"
@@ -13,7 +15,7 @@ html lang="#{I18n.locale}"
   body.auth-body
     .auth
       = link_to root_path, class: 'auth__brand'
-        span.auth__logo THE DISPATCH
+        span.auth__logo Lyzfol
         span.auth__rule
       = yield
-      p.auth__copy © #{Time.current.year} THE DISPATCH
+      p.auth__copy © #{Time.current.year} Lyzfol
