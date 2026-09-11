@@ -11,6 +11,7 @@ module NewsSources
     TIMEOUT = 20
     OPEN_TIMEOUT = 8
     MAX_BYTES = 2 * 1024 * 1024
+    FILE_MAX_BYTES = 8 * 1024 * 1024
     MAX_REDIRECTS = 5
     RETRIES = 2
 
@@ -26,9 +27,9 @@ module NewsSources
       end
     end
 
-    def get_file(url)
+    def get_file(url, referer: nil)
       with_retry do
-        follow(url, mode: :file)
+        follow(url, mode: :file, referer:)
       end
     end
 
@@ -55,21 +56,21 @@ module NewsSources
       code >= 500 || code == 429
     end
 
-    def follow(url, hops = 0, mode: :text)
+    def follow(url, hops = 0, mode: :text, referer: nil)
       raise Error, 'Too many redirects' if hops > MAX_REDIRECTS
 
-      response = request(url, mode:)
+      response = request(url, mode:, referer:)
       if redirect?(response)
         location = response.headers['location'].to_s
         raise Error, 'Redirect without location' if location.blank?
 
-        return follow(absolute(url, location), hops + 1, mode:)
+        return follow(absolute(url, location), hops + 1, mode:, referer:)
       end
 
       raise HttpError, "HTTP #{response.status}" unless response.success?
 
       body = response.body.to_s
-      limit = mode == :file ? MAX_BYTES + 1.megabyte : MAX_BYTES
+      limit = mode == :file ? FILE_MAX_BYTES : MAX_BYTES
       raise TooLargeError, "Response exceeds #{limit} bytes" if body.bytesize > limit
 
       mode == :file ? file_payload(url, response, body) : encode(body)
@@ -77,16 +78,15 @@ module NewsSources
       raise TimeoutError, e.message
     end
 
-    def request(url, mode: :text)
+    def request(url, mode: :text, referer: nil)
       Faraday.get(url) do |req|
         req.options.timeout = TIMEOUT
         req.options.open_timeout = OPEN_TIMEOUT
         req.headers['User-Agent'] = USER_AGENT
         req.headers['Accept-Language'] = 'en-US,en;q=0.9'
         req.headers['Accept'] = accept_for(mode)
-        if (origin = origin_for(url))
-          req.headers['Referer'] = origin
-        end
+        ref = referer.presence || origin_for(url)
+        req.headers['Referer'] = ref if ref.present?
       end
     end
 
@@ -115,7 +115,7 @@ module NewsSources
       unless type.start_with?('image/') || url.match?(/\.(jpe?g|png|gif|webp|avif)(\?|$)/i)
         return
       end
-      return if body.bytesize < 2_048 || body.bytesize > 3 * 1024 * 1024
+      return if body.bytesize < 2_048 || body.bytesize > FILE_MAX_BYTES
 
       name = File.basename(URI.parse(url).path.to_s)
       name = 'image.jpg' if name.blank? || name == '/'

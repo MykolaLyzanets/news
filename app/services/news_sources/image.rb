@@ -19,23 +19,25 @@ module NewsSources
       discover(page_url)
     end
 
-    def attach(post, url)
+    def attach(record, url, referer: nil)
       url = enlarge(url)
       return unless self.class.usable?(url)
 
-      post.update_column(:source_image_url, url) if post.source_image_url.blank? || !self.class.usable?(post.source_image_url)
-      return if post.image.present? && real_file?(post)
+      assign_source_url(record, url)
+      return if real_file?(record)
 
-      file = @client.get_file(url)
+      file = @client.get_file(url, referer: referer.presence || record.try(:source_url))
       return unless file && file[:body].bytesize >= MIN_BYTES
 
       tmp = tempfile_for(file)
-      post.image = tmp
-      post.save!
+      prepared = prepare_for_upload(tmp)
+      record.image = prepared
+      record.save!
     rescue StandardError => e
       Rails.logger.warn("[NewsSource] Image skip: #{e.message}")
     ensure
       cleanup(tmp)
+      cleanup(prepared) if prepared && prepared != tmp
     end
 
     def discover(page_url)
@@ -60,8 +62,18 @@ module NewsSources
 
     private
 
-    def real_file?(post)
-      path = post.image.path
+    def assign_source_url(record, url)
+      return if record.source_image_url.present? && self.class.usable?(record.source_image_url)
+
+      if record.persisted?
+        record.update_column(:source_image_url, url)
+      else
+        record.source_image_url = url
+      end
+    end
+
+    def real_file?(record)
+      path = record.image.path
       path.present? && File.exist?(path) && File.size(path) >= MIN_BYTES
     rescue StandardError
       false
@@ -70,9 +82,26 @@ module NewsSources
     def tempfile_for(file)
       ext = File.extname(file[:name].to_s)
       ext = '.jpg' if ext.blank? || ext == '.'
-      tmp = Tempfile.new(['post-image', ext])
+      tmp = Tempfile.new(['source-image', ext])
       tmp.binmode
       tmp.write(file[:body])
+      tmp.rewind
+      tmp
+    end
+
+    def prepare_for_upload(tmp)
+      img = MiniMagick::Image.open(tmp.path)
+      img.auto_orient
+      img.resize '1600x1600>'
+      img.format 'jpg'
+      img.quality 85
+      out = Tempfile.new(['post-image', '.jpg'])
+      out.binmode
+      img.write(out.path)
+      out.rewind
+      out
+    rescue StandardError => e
+      Rails.logger.warn("[NewsSource] Image resize skip: #{e.message}")
       tmp.rewind
       tmp
     end

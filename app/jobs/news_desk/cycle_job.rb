@@ -8,6 +8,7 @@ module NewsDesk
       Rails.logger.info('[NewsDesk] Cycle started')
       NewsSources::FetchAllJob.perform_now
       Process.new.call
+      Posts::HostImagesJob.perform_later
       Rails.logger.info('[NewsDesk] Cycle finished')
     end
   end

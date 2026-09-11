@@ -182,6 +182,7 @@ module NewsDesk
       post = Post.new(generated_attrs(event, source_article, article))
       copy_image(post, source_article)
       post.save!
+      host_remote_image(post)
       post
     end
 
@@ -195,6 +196,7 @@ module NewsDesk
         ai_error: nil,
         quality_status: 'passed'
       )
+      host_remote_image(post)
     end
 
     def generated_attrs(event, source_article, article)
@@ -244,6 +246,13 @@ module NewsDesk
       File.open(source_article.image.path) { |file| post.image = file }
     rescue StandardError => e
       Log.error(e.message, event: post.event, operation: 'image_copy')
+    end
+
+    def host_remote_image(post)
+      return if post.real_image?
+      return unless NewsSources::Image.usable?(post.source_image_url)
+
+      NewsSources::Image.new.attach(post, post.source_image_url, referer: post.source_url)
     end
 
     def finish(event, post)
