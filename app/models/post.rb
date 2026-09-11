@@ -96,7 +96,7 @@ class Post < ApplicationRecord
   end
 
   def meta_description
-    excerpt(40)
+    "Read about #{title}. #{category.name}"
   end
 
   def lead_in

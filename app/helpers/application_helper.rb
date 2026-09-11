@@ -18,7 +18,7 @@ module ApplicationHelper
 
   def current_section
     return params[:section] if controller_name == 'categories'
-    return @post.category.url if controller_name == 'articles' && @post
+    return @post.category.url if article_page?
     return 'home' if controller_name == 'articles'
     return 'home' if controller_name == 'topics'
 
@@ -56,30 +56,63 @@ module ApplicationHelper
     end
   end
 
+  def page_meta_tags
+    tags = {
+      title: page_title,
+      description: page_description,
+      canonical: canonical_url,
+      viewport: 'width=device-width, initial-scale=1',
+      og: {
+        title: :title,
+        description: :description,
+        type: article_page? ? 'article' : 'website',
+        url: canonical_url
+      }
+    }
+    image = article_page? ? jsonld_image(@post) : nil
+    tags[:og][:image] = image if image.present?
+    tags
+  end
+
   def page_title
-    if controller_name == 'articles' && @post
-      return "#{@post.title} — THE DISPATCH"
+    if article_page?
+      return "#{@post.category.name}: #{@post.title}"
     end
-    if controller_name == 'topics' && @topic
+    if topic_page?
       return "#{@topic.name} — THE DISPATCH"
     end
-    return 'THE DISPATCH' if current_section == 'home'
+    return 'Latest News, Business Insights & Expert Articles' if current_section == 'home'
+    if controller_name == 'categories'
+      return "#{category_seo_name} News, Trends & Expert Insights"
+    end
 
     "#{current_section.to_s.titleize} — THE DISPATCH"
   end
 
   def page_description
-    if controller_name == 'articles' && @post
+    if article_page?
       return @post.meta_description
     end
-    if controller_name == 'topics' && @topic
+    if topic_page?
       return "Coverage of #{@topic.name} from THE DISPATCH."
     end
-    if controller_name == 'categories' && @category
-      return @category.text.presence || "#{@category.name} news from THE DISPATCH."
+    if controller_name == 'categories'
+      return "Explore the latest #{category_seo_name.downcase} news, industry trends, expert insights and practical analysis covering the topics, companies and developments that matter."
     end
 
-    'Original reporting from THE DISPATCH.'
+    'Discover the latest news, expert insights, industry trends and practical perspectives across business, technology, finance, marketing and more.'
+  end
+
+  def article_page?
+    controller_name == 'articles' && @post.present?
+  end
+
+  def topic_page?
+    controller_name == 'topics' && @topic.present?
+  end
+
+  def category_seo_name
+    @category&.name.presence || current_section.to_s.titleize
   end
 
   def canonical_url

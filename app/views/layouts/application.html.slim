@@ -1,15 +1,8 @@
 doctype html
 html lang="#{I18n.locale}"
   head
-    title = page_title
-    meta name="viewport" content="width=device-width, initial-scale=1"
-    meta name="description" content=page_description
-    link rel="canonical" href=canonical_url
-    - if controller_name == 'articles' && @post
-      meta property="og:title" content=@post.title
-      meta property="og:description" content=@post.meta_description
-      meta property="og:type" content="article"
-      meta property="og:url" content=canonical_url
+    = display_meta_tags page_meta_tags
+    - if article_page?
       script type="application/ld+json"
         == news_article_jsonld(@post)
 

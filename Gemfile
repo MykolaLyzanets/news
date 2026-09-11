@@ -76,3 +76,4 @@ gem "redis", "~> 6.0"
 gem "connection_pool", "~> 2.4"
 
 gem "devise", "~> 4.9"
+gem 'meta-tags', '~> 2.24'
