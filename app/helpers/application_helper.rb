@@ -60,6 +60,7 @@ module ApplicationHelper
       description: page_description,
       canonical: canonical_url,
       viewport: 'width=device-width, initial-scale=1',
+      google_site_verification: 'CKdzhMWmSTZgv_AyXnz1MGQsMNIVHrtqzkwTxdRNBu0',
       icon: [
         { href: '/favicon.ico', type: 'image/x-icon' },
         { href: '/favicon.png', type: 'image/png', sizes: '32x32' },
