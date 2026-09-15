@@ -90,6 +90,8 @@ module NewsSources
     end
 
     def prepare_for_upload(tmp)
+      return tmp unless ImageUploader.magick_available?
+
       img = MiniMagick::Image.open(tmp.path)
       img.auto_orient
       img.resize '1600x1600>'

@@ -33,8 +33,9 @@ module Ai
         Write as this site's own report, not as a copy of another outlet.
         Use short paragraphs. Put two or three section headings in the text
         on their own lines in Title Case when the facts support it.
-        Pick length from confirmed facts: short 220-350 words, normal 350-600, important 600-1000.
-        Do not pad. JSON only:
+        Write at least #{NewsDesk::Config.min_publish_words} words.
+        Prefer 180-400 words when facts allow; go longer only for major events.
+        Do not pad with filler. JSON only:
         {"title":"...","intro":"...","text":"..."}
         Event: #{event.title}
         Facts: #{event.facts.to_json}

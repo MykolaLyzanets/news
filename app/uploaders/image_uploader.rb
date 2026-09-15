@@ -5,7 +5,7 @@ class ImageUploader < CarrierWave::Uploader::Base
 
   storage :file
 
-  process :to_webp
+  process :to_webp, if: :magick_available?
 
   def store_dir
     "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
@@ -20,10 +20,26 @@ class ImageUploader < CarrierWave::Uploader::Base
   end
 
   def filename
-    'photo.webp'
+    magick_available? ? 'photo.webp' : "photo#{File.extname(original_filename.to_s).presence || '.jpg'}"
   end
 
   private
+
+  def magick_available?(*)
+    self.class.magick_available?
+  end
+
+  def self.magick_available?
+    return @magick_available if defined?(@magick_available)
+
+    @magick_available = begin
+      MiniMagick.cli
+      MiniMagick.cli_version
+      true
+    rescue StandardError
+      false
+    end
+  end
 
   def to_webp
     manipulate! do |img|
