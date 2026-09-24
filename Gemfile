@@ -22,6 +22,7 @@ gem 'carrierwave', '~> 3.0'
 gem 'mini_magick', '~> 4.13'
 gem 'faraday', '~> 2.9'
 gem 'google-apis-sheets_v4', '~> 0.45'
+gem 'multi_json'
 gem 'rss'
 gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
