@@ -5,18 +5,15 @@ module GoogleSheets
     def append(post)
       return unless Config.configured?
 
-      client.append(range, [row_for(post)])
+      client.append_rows!([row_for(post)])
     end
 
     def sync_all!
       return unless Config.configured?
 
-      posts = Post.visible.order(:date, :id)
-      rows = posts.map { |post| row_for(post) }
-      client.clear_range(range)
-      return if rows.empty?
-
-      client.update(range, rows)
+      rows = Post.visible.order(:date, :id).map { |post| row_for(post) }
+      client.clear_sheet_data!
+      client.write_rows!(rows)
     end
 
     private
@@ -25,12 +22,8 @@ module GoogleSheets
       @client ||= Client.new
     end
 
-    def range
-      "'#{Config.sheet_name}'!A:B"
-    end
-
     def row_for(post)
-      [format_datetime(post.date), article_url(post)]
+      [format_datetime(post.date || post.created_at), article_url(post)]
     end
 
     def format_datetime(time)

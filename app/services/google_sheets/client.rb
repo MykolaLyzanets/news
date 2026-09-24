@@ -14,34 +14,77 @@ module GoogleSheets
       @service.authorization = authorizer
     end
 
-    def clear_range(range)
-      service.clear_values(Config.spreadsheet_id, range)
+    def clear_sheet_data!
+      api_call do
+        service.clear_values(
+          Config.spreadsheet_id,
+          "#{quoted_sheet}!A:B",
+          Google::Apis::SheetsV4::ClearValuesRequest.new
+        )
+      end
     end
 
-    def update(range, rows)
-      body = Google::Apis::SheetsV4::ValueRange.new(values: rows)
-      service.update_spreadsheet_value(
-        Config.spreadsheet_id,
-        range,
-        body,
-        value_input_option: 'USER_ENTERED'
-      )
+    def write_rows!(rows)
+      return if rows.empty?
+
+      api_call do
+        service.update_spreadsheet_value(
+          Config.spreadsheet_id,
+          data_range(rows.size),
+          Google::Apis::SheetsV4::ValueRange.new(values: rows),
+          value_input_option: 'RAW'
+        )
+      end
     end
 
-    def append(range, rows)
-      body = Google::Apis::SheetsV4::ValueRange.new(values: rows)
-      service.append_spreadsheet_value(
-        Config.spreadsheet_id,
-        range,
-        body,
-        value_input_option: 'USER_ENTERED',
-        insert_data_option: 'INSERT_ROWS'
-      )
+    def append_rows!(rows)
+      return if rows.empty?
+
+      api_call do
+        service.append_spreadsheet_value(
+          Config.spreadsheet_id,
+          append_range,
+          Google::Apis::SheetsV4::ValueRange.new(values: rows),
+          value_input_option: 'RAW',
+          insert_data_option: 'INSERT_ROWS'
+        )
+      end
     end
 
     private
 
     attr_reader :service
+
+    def sheet_title
+      @sheet_title ||= resolve_sheet_title
+    end
+
+    def resolve_sheet_title
+      api_call do
+        spreadsheet = service.get_spreadsheet(Config.spreadsheet_id, fields: 'sheets.properties')
+        by_gid = spreadsheet.sheets.find { |sheet| sheet.properties.sheet_id == Config.sheet_gid }
+        title = by_gid&.properties&.title.presence
+        title || Config.sheet_name
+      end
+    end
+
+    def api_call
+      yield
+    rescue Google::Apis::Error => e
+      raise Error, ErrorMessage.from(e)
+    end
+
+    def quoted_sheet
+      "'#{sheet_title.gsub("'", "''")}'"
+    end
+
+    def data_range(row_count)
+      "#{quoted_sheet}!A1:B#{row_count}"
+    end
+
+    def append_range
+      "#{quoted_sheet}!A:B"
+    end
 
     def authorizer
       json = Config.service_account_json

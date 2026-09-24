@@ -3,6 +3,7 @@
 module GoogleSheets
   class Config
     SPREADSHEET_ID = '1-rZZCXEo1dnqxgm4F9gEzpbN4vx-LJHlK0MwHh9rlFc'
+    SHEET_GID = 1_022_927_969
     SHEET_NAME = 'News link'
 
     def self.configured?
@@ -15,6 +16,10 @@ module GoogleSheets
 
     def self.sheet_name
       SHEET_NAME
+    end
+
+    def self.sheet_gid
+      SHEET_GID
     end
 
     def self.service_account_json

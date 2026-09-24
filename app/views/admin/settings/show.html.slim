@@ -13,7 +13,8 @@ p.admin__hint
         li = msg
   label
     span Service account JSON (ключ із Google Cloud)
-    = f.text_area :google_sheets_service_account_json, rows: 12, placeholder: '{ "type": "service_account", "client_email": "...", ... }', autocomplete: 'off', spellcheck: 'false'
+    - json_placeholder = @setting.google_sheets_service_account_json.present? ? 'JSON already saved — paste only to replace' : '{ "type": "service_account", "client_email": "...", ... }'
+    = f.text_area :google_sheets_service_account_json, rows: 12, placeholder: json_placeholder, value: '', autocomplete: 'off', spellcheck: 'false'
   - if @setting.google_service_account_email.present?
     p.admin__hint
       | У Google Таблиці натисніть «Поділитися» і додайте редактора:
