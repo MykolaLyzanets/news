@@ -13,6 +13,9 @@ Rails.application.routes.draw do
 
   namespace :admin do
     root to: 'home#index'
+    resource :settings, only: %i[show update] do
+      post :sync_news_links
+    end
     resources :sources, except: :show do
       post :fetch, on: :member
       post :test, on: :member

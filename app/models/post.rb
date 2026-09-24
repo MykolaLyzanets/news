@@ -17,6 +17,8 @@ class Post < ApplicationRecord
   before_validation :fill_empty
   before_validation :fill_originals
 
+  after_commit :enqueue_google_sheets_export, on: %i[create update]
+
   scope :visible, -> { where(published: true) }
   scope :fresh, -> { where('date >= ?', fresh_since) }
   scope :newest, -> { order(date: :desc) }
@@ -132,5 +134,13 @@ class Post < ApplicationRecord
     self.original_title = title if original_title.blank?
     self.original_text = text if original_text.blank?
     self.original_intro = intro if original_intro.blank?
+  end
+
+  def enqueue_google_sheets_export
+    return unless GoogleSheets::Config.configured?
+    return unless published?
+    return unless saved_change_to_published?
+
+    GoogleSheets::AppendNewsLinkJob.perform_later(id)
   end
 end

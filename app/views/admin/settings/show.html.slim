@@ -1,0 +1,27 @@
+h1.admin__h Settings
+
+h2.admin__h Google Sheets — News link
+p.admin__hint
+  | Вкладка
+  strong  News link
+  | : колонка A — дата й час, B — повна URL. Нові публікації додаються автоматично.
+
+= form_with model: @setting, url: admin_settings_path, method: :patch, class: 'admin__form' do |f|
+  - if @setting.errors.any?
+    ul.admin__bad
+      - @setting.errors.full_messages.each do |msg|
+        li = msg
+  label
+    span Service account JSON (ключ із Google Cloud)
+    = f.text_area :google_sheets_service_account_json, rows: 12, placeholder: '{ "type": "service_account", "client_email": "...", ... }', autocomplete: 'off', spellcheck: 'false'
+  - if @setting.google_service_account_email.present?
+    p.admin__hint
+      | У Google Таблиці натисніть «Поділитися» і додайте редактора:
+      strong = @setting.google_service_account_email
+  = f.submit 'Save', class: 'admin__btn'
+
+.admin__row
+  = button_to 'Sync all live news now', sync_news_links_admin_settings_path, method: :post, class: 'admin__btn', data: { turbo_confirm: 'Перезаписати вкладку всіма опублікованими новинами?' }
+
+p.admin__hint
+  | Один раз: Google Cloud → Service Account → JSON key. У таблиці — доступ редактору для email з JSON. У Cloud увімкніть Google Sheets API.

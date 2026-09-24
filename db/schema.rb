@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_09_08_120000) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_24_123000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -161,6 +161,12 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_08_120000) do
     t.index ["source_id"], name: "index_source_articles_on_source_id"
     t.index ["source_url"], name: "index_source_articles_on_source_url", unique: true
     t.index ["status"], name: "index_source_articles_on_status"
+  end
+
+  create_table "site_settings", force: :cascade do |t|
+    t.text "google_sheets_service_account_json"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "sources", force: :cascade do |t|

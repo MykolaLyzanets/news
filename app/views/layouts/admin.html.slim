@@ -18,6 +18,7 @@ html lang="en"
           = link_to 'News Sources', admin_sources_path, class: ('is-on' if controller_name == 'sources')
           = link_to 'Events', admin_events_path, class: ('is-on' if controller_name == 'events')
           = link_to 'Posts', admin_posts_path, class: ('is-on' if controller_name == 'posts')
+          = link_to 'Settings', admin_settings_path, class: ('is-on' if controller_name == 'settings')
           = link_to 'Site', root_path, target: '_blank'
         = button_to 'Log out', destroy_user_session_path, method: :delete, class: 'admin__out'
       .admin__main
