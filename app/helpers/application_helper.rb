@@ -4,6 +4,9 @@ module ApplicationHelper
   SITE_NAME = 'Lyzfol'
   SITE_ORIGIN = ENV.fetch('SITEMAP_HOST', 'https://lyzfol.com')
 
+  STORY_HTML_TAGS = %w[p div br strong b em i a ul ol li h2 h3 blockquote].freeze
+  STORY_HTML_ATTRS = %w[href title target rel].freeze
+
   SECTION_NAV = [
     ['Home', 'home'],
     ['World', 'world'],
@@ -28,6 +31,14 @@ module ApplicationHelper
 
   def section_href(id)
     id == 'home' ? root_path : section_path(id)
+  end
+
+  def section_listed?(slug)
+    CategoriesController::SECTIONS.include?(slug.to_s)
+  end
+
+  def section_url_for(slug)
+    section_url(slug) if section_listed?(slug)
   end
 
   def breaking_post
@@ -159,7 +170,9 @@ module ApplicationHelper
 
     crumbs = [{ name: 'Home', url: root_url }]
     if article_page?
-      crumbs << { name: @post.category.name, url: section_url(@post.category.url) }
+      category_crumb = { name: @post.category.name }
+      category_crumb[:url] = section_url_for(@post.category.url) if section_listed?(@post.category.url)
+      crumbs << category_crumb
       crumbs << { name: @post.title, url: canonical_url }
     elsif controller_name == 'categories' && @section.present?
       crumbs << { name: category_seo_name, url: canonical_url }
@@ -175,6 +188,15 @@ module ApplicationHelper
     crumbs
   end
 
+  def story_body_html(text)
+    raw = text.to_s
+    return '' if raw.blank?
+    return simple_format(raw) unless raw.include?('<')
+
+    html = sanitize(raw, tags: STORY_HTML_TAGS, attributes: STORY_HTML_ATTRS)
+    externalize_story_links(html)
+  end
+
   def source_credits_links(post)
     links = post.source_credits.map do |credit|
       if credit[:url].present?
@@ -187,6 +209,18 @@ module ApplicationHelper
   end
 
   private
+
+  def externalize_story_links(html)
+    fragment = Loofah.html5_fragment(html)
+    fragment.css('a[href]').each do |anchor|
+      href = anchor['href'].to_s
+      next unless href.start_with?('http://', 'https://', 'mailto:')
+
+      anchor['target'] = '_blank' if href.start_with?('http')
+      anchor['rel'] = 'noopener noreferrer'
+    end
+    fragment.to_html
+  end
 
   def noindex_page?
     @noindex.present? || topic_page? || not_found_page?
@@ -281,9 +315,10 @@ module ApplicationHelper
   end
 
   def breadcrumb_schema
+    listed = breadcrumbs.select { |crumb| crumb[:url].present? }
     {
       '@type' => 'BreadcrumbList',
-      'itemListElement' => breadcrumbs.each_with_index.map do |crumb, index|
+      'itemListElement' => listed.each_with_index.map do |crumb, index|
         {
           '@type' => 'ListItem',
           'position' => index + 1,

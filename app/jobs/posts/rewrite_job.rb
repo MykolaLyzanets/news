@@ -7,6 +7,7 @@ module Posts
     def perform(post_id)
       post = Post.find_by(id: post_id)
       return unless post
+      return if post.manual?
       return if post.ai_done?
 
       result = RewriteService.new(post).call

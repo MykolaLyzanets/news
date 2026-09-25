@@ -9,6 +9,7 @@ module Posts
     end
 
     def call
+      return { ok: false, error: 'Manual posts are not sent to AI' } if @post.manual?
       return { ok: false, error: 'No text' } if @post.source_text.to_s.squish.blank?
       return { ok: false, error: 'No OpenAI key' } unless Ai::Config.configured?
 

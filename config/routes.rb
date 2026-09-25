@@ -24,7 +24,7 @@ Rails.application.routes.draw do
       post :parse_all, on: :collection
       post :fetch_all, on: :collection
     end
-    resources :posts, only: %i[index edit update destroy] do
+    resources :posts, only: %i[index new create edit update destroy] do
       post :rewrite, on: :member
       post :publish, on: :member
       post :hide, on: :member

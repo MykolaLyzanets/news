@@ -1,0 +1,61 @@
+= form_with model: [:admin, post], class: 'admin__form' do |f|
+  - if post.errors.any?
+    ul.admin__bad
+      - post.errors.full_messages.each do |msg|
+        li = msg
+  label
+    span Category
+    = f.collection_select :category_id, Category.ordered, :id, :name, prompt: 'Select category'
+  label
+    span Title
+    = f.text_field :title
+  label
+    span Intro
+    = f.text_area :intro, rows: 3
+  .admin__rich-text data-controller="rich-text"
+    span.admin__label Text
+    p.admin__hint Select words, then press the link button in the toolbar (chain icon) and paste a URL — they become clickable on the article. Field “Source link” below is only for the Sources line at the bottom.
+    = f.hidden_field :text, id: dom_id(post, :text)
+    trix-editor input=dom_id(post, :text)
+  label
+    span Source name
+    = f.collection_select :source_id, Source.ordered, :id, :name, include_blank: '— none —'
+  label
+    span Source link
+    = f.url_field :source_url, placeholder: 'https://…'
+  p.admin__hint
+    | For manual posts only: pick a source (e.g. BBC Technology) and/or paste the article URL — both appear under “Sources” at the bottom, like on auto-generated stories.
+    |  Topics (Trump, etc.) are filled automatically only for posts from the news desk pipeline, not for manual posts.
+  label
+    span Label
+    = f.text_field :label
+  label
+    span Note
+    = f.text_field :note
+  label
+    span Quote
+    = f.text_area :quote, rows: 2
+  label
+    span Quote name
+    = f.text_field :quote_name
+  label
+    span Photo
+    - if post.image.present?
+      = image_tag post.image.url, class: 'admin__preview'
+    = f.file_field :image
+  label
+    span Minutes
+    = f.number_field :minutes
+  label.admin__check
+    = f.check_box :main
+    span Main
+  label.admin__check
+    = f.check_box :breaking
+    span Breaking
+  label.admin__check
+    = f.check_box :special
+    span Special
+  label.admin__check
+    = f.check_box :published
+    span Published
+  = f.submit post.persisted? ? 'Save' : 'Create post', class: 'admin__btn'

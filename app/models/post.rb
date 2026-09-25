@@ -8,14 +8,16 @@ class Post < ApplicationRecord
 
   validates :title, presence: true
   validates :url, presence: true, uniqueness: true
-  validates :source_url, uniqueness: true, allow_blank: true
-  validates :fingerprint, uniqueness: true, allow_blank: true
+  validates :source_url, uniqueness: { allow_nil: true, conditions: -> { where(manual: false) } }
+  validates :fingerprint, uniqueness: { allow_nil: true, conditions: -> { where(manual: false) } }
   validates :views, :minutes, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   validates :event_id, uniqueness: true, allow_nil: true
 
   before_validation :fill_url
   before_validation :fill_empty
   before_validation :fill_originals
+  before_validation :normalize_optional_urls
+  before_validation :skip_ai_for_manual
 
   after_commit :enqueue_google_sheets_export, on: %i[create update]
 
@@ -25,8 +27,9 @@ class Post < ApplicationRecord
   scope :big, -> { where(main: true) }
   scope :urgent, -> { where(breaking: true) }
   scope :popular, -> { order(views: :desc) }
-  scope :pending_ai, -> { where(ai_done: false) }
+  scope :pending_ai, -> { where(ai_done: false, manual: false) }
   scope :published_today, -> { visible.where(date: Time.zone.now.all_day) }
+  scope :quota_counted, -> { where(manual: false) }
 
   def self.fresh_since
     Time.zone.now.beginning_of_day - 1.day
@@ -94,7 +97,8 @@ class Post < ApplicationRecord
   end
 
   def excerpt(words = 36)
-    (intro.presence || text).to_s.squish.truncate_words(words, omission: '…')
+    plain = ActionController::Base.helpers.strip_tags(intro.presence || text.to_s).squish
+    plain.truncate_words(words, omission: '…')
   end
 
   def meta_description
@@ -107,6 +111,14 @@ class Post < ApplicationRecord
 
   def related_topics
     event&.topics.to_a.first(4) || []
+  end
+
+  def editorial?
+    manual? || event_id.nil?
+  end
+
+  def publish_editorial!
+    update!(published: true, date: date || Time.current)
   end
 
   private
@@ -134,6 +146,15 @@ class Post < ApplicationRecord
     self.original_title = title if original_title.blank?
     self.original_text = text if original_text.blank?
     self.original_intro = intro if original_intro.blank?
+  end
+
+  def normalize_optional_urls
+    self.source_url = source_url.presence
+    self.fingerprint = fingerprint.presence
+  end
+
+  def skip_ai_for_manual
+    self.ai_done = true if manual?
   end
 
   def enqueue_google_sheets_export

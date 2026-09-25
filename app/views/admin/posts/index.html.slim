@@ -10,6 +10,7 @@
       - elsif params[:live] == '0'
         |  · drafts
   .admin__head-actions
+    = link_to 'New post', new_admin_post_path, class: 'admin__btn'
     = button_to 'AI rewrite all new', rewrite_all_admin_posts_path, method: :post, class: 'admin__btn'
 
 nav.admin__tabs
@@ -59,6 +60,8 @@ nav.admin__tabs
                   span.admin__flag Lead
                 - if post.breaking?
                   span.admin__flag.admin__flag--hot Breaking
+                - if post.manual?
+                  span.admin__flag Manual
             td
               span.admin__desk = post.category.name
             td
@@ -74,7 +77,8 @@ nav.admin__tabs
             td.admin__actions
               = link_to 'View on site', article_path(post), target: '_blank', rel: 'noopener', class: 'admin__btn admin__btn--ghost admin__btn--small'
               = link_to 'Edit', edit_admin_post_path(post), class: 'admin__btn admin__btn--ghost admin__btn--small'
-              = button_to 'AI', rewrite_admin_post_path(post), method: :post, class: 'admin__btn admin__btn--small'
+              - unless post.manual?
+                = button_to 'AI', rewrite_admin_post_path(post), method: :post, class: 'admin__btn admin__btn--small'
               - if post.published?
                 = button_to 'Hide', hide_admin_post_path(post), method: :post, class: 'admin__btn admin__btn--ghost admin__btn--small'
               - else

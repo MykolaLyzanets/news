@@ -5,7 +5,7 @@ module NewsDesk
     STALE_AFTER = 30.minutes
 
     def self.used
-      Post.published_today.count
+      Post.published_today.quota_counted.count
     end
 
     def self.reserved
@@ -25,7 +25,7 @@ module NewsDesk
     end
 
     def self.used_by_category
-      Post.published_today.group(:category_id).count
+      Post.published_today.quota_counted.group(:category_id).count
     end
 
     def self.reserved_by_category
@@ -72,6 +72,11 @@ module NewsDesk
       with_lock do
         post = Post.lock.find(post.id)
         return post if post.published?
+        if post.editorial?
+          post.update!(published: true, date: post.date || Time.current)
+          sync_event!(post)
+          return post
+        end
         return :full if used >= Config.daily_limit
         return :category_full if category_used_full?(post.category_id)
 

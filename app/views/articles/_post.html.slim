@@ -19,7 +19,8 @@ article.story-page
         figure.story-hero
           = post_image_tag post, loading: 'eager', fetchpriority: 'high'
       .story-body
-        = simple_format(post.text)
+        .story-body__content
+          == story_body_html(post.text)
         - if post.quote.present?
           blockquote.pull-quote
             p = post.quote
@@ -62,7 +63,8 @@ article.story-page
           div
             p.kicker.kicker--accent More from the desk
             h2 Continue Reading
-          = link_to "More #{post.category.name} news →", section_path(post.category.url), class: 'continue__all'
+          - if section_listed?(post.category.url)
+            = link_to "More #{post.category.name} news →", section_path(post.category.url), class: 'continue__all'
         .continue__grid
           - @more.each do |card|
             article.continue__card

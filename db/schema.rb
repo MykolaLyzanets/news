@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_09_24_123000) do
+ActiveRecord::Schema[7.0].define(version: 2026_09_25_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -122,14 +122,22 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_24_123000) do
     t.bigint "event_id"
     t.text "ai_error"
     t.string "quality_status"
+    t.boolean "manual", default: false, null: false
     t.index ["category_id"], name: "index_posts_on_category_id"
     t.index ["date"], name: "index_posts_on_date"
     t.index ["event_id"], name: "index_posts_on_event_id", unique: true, where: "(event_id IS NOT NULL)"
     t.index ["fingerprint"], name: "index_posts_on_fingerprint", unique: true, where: "(fingerprint IS NOT NULL)"
+    t.index ["manual"], name: "index_posts_on_manual"
     t.index ["published"], name: "index_posts_on_published"
     t.index ["source_id"], name: "index_posts_on_source_id"
-    t.index ["source_url"], name: "index_posts_on_source_url", unique: true
+    t.index ["source_url"], name: "index_posts_on_source_url_dedupe", unique: true, where: "((source_url IS NOT NULL) AND (manual = false))"
     t.index ["url"], name: "index_posts_on_url", unique: true
+  end
+
+  create_table "site_settings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "google_sheets_service_account_json"
   end
 
   create_table "source_articles", force: :cascade do |t|
@@ -161,12 +169,6 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_24_123000) do
     t.index ["source_id"], name: "index_source_articles_on_source_id"
     t.index ["source_url"], name: "index_source_articles_on_source_url", unique: true
     t.index ["status"], name: "index_source_articles_on_status"
-  end
-
-  create_table "site_settings", force: :cascade do |t|
-    t.text "google_sheets_service_account_json"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
   end
 
   create_table "sources", force: :cascade do |t|

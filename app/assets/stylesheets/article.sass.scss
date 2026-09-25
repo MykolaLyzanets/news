@@ -101,8 +101,22 @@
 }
 
 .story-body p + p,
-.story-body h2 + p {
+.story-body h2 + p,
+.story-body__content div + div,
+.story-body__content p + p {
   margin-top: 1.1rem;
+}
+
+.story-body__content a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.story-body__content ul,
+.story-body__content ol {
+  margin: 1rem 0;
+  padding-left: 1.4rem;
 }
 
 .story-source {

@@ -4,5 +4,7 @@ nav.crumbs.container aria-label="Breadcrumb"
       li
         - if index == breadcrumbs.size - 1
           span aria-current="page" = crumb[:name]
-        - else
+        - elsif crumb[:url].present?
           = link_to crumb[:name], crumb[:url]
+        - else
+          span = crumb[:name]

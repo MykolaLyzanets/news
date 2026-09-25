@@ -12,3 +12,6 @@ application.register("tabs", TabsController)
 
 import SectionTabsController from "./section_tabs_controller"
 application.register("section-tabs", SectionTabsController)
+
+import RichTextController from "./rich_text_controller"
+application.register("rich-text", RichTextController)

@@ -6,6 +6,23 @@ module Admin
 
     PER_PAGE = 20
 
+    def new
+      @post = Post.new(manual: true)
+    end
+
+    def create
+      @post = Post.new(manual: true)
+      @post.assign_attributes(post_params)
+      @post.label = @post.category.name if @post.category && @post.label.blank?
+
+      unless @post.save
+        render :new, status: :unprocessable_entity
+        return
+      end
+
+      redirect_to edit_admin_post_path(@post), notice: 'Post created'
+    end
+
     def index
       @categories = Category.ordered
       @category = @categories.find { |item| item.url == params[:category] }
@@ -26,6 +43,15 @@ module Admin
     def edit; end
 
     def update
+      if @post.editorial?
+        unless @post.update(post_params)
+          render :edit, status: :unprocessable_entity
+          return
+        end
+        redirect_to admin_posts_path, notice: 'Post saved'
+        return
+      end
+
       going_live = publish_requested? && !@post.published?
       attrs = going_live ? post_params.except(:published) : post_params
       unless @post.update(attrs)
@@ -47,6 +73,11 @@ module Admin
     end
 
     def rewrite
+      if @post.manual?
+        redirect_to edit_admin_post_path(@post), alert: 'Manual posts are not sent to AI'
+        return
+      end
+
       result = Posts::RewriteService.new(@post).call
       if result[:ok]
         redirect_to edit_admin_post_path(@post), notice: 'AI changed title'
@@ -61,6 +92,11 @@ module Admin
     end
 
     def regenerate
+      if @post.manual?
+        redirect_to edit_admin_post_path(@post), alert: 'Manual posts are not sent to AI'
+        return
+      end
+
       unless @post.event
         redirect_to edit_admin_post_path(@post), alert: 'Post has no event'
         return
@@ -75,6 +111,12 @@ module Admin
     end
 
     def publish
+      if @post.editorial?
+        @post.publish_editorial!
+        back_to_posts 'Post is live'
+        return
+      end
+
       result = NewsDesk::Quota.claim_publication!(@post)
       if result.is_a?(Symbol)
         redirect_back fallback_location: admin_posts_path, alert: NewsDesk::Quota.message(result)
@@ -111,7 +153,7 @@ module Admin
 
     def post_params
       params.require(:post).permit(
-        :category_id, :title, :intro, :text, :label, :note, :quote, :quote_name,
+        :category_id, :source_id, :title, :intro, :text, :label, :note, :quote, :quote_name, :source_url,
         :published, :main, :breaking, :special, :minutes, :image
       )
     end

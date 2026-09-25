@@ -583,6 +583,32 @@ a.admin__list-name:hover {
   background: #f7f6f2;
 }
 
+@import "trix/dist/trix";
+
+.admin__rich-text {
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.admin__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.admin__rich-text trix-editor {
+  min-height: 14rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.admin__rich-text trix-toolbar {
+  margin-bottom: 0.35rem;
+}
+
 @media (max-width: 800px) {
   .admin {
     grid-template-columns: 1fr;
