@@ -11,7 +11,6 @@
         |  · drafts
   .admin__head-actions
     = link_to 'New post', new_admin_post_path, class: 'admin__btn'
-    = button_to 'AI rewrite all new', rewrite_all_admin_posts_path, method: :post, class: 'admin__btn'
 
 nav.admin__tabs
   = link_to admin_posts_path(admin_posts_q(category: nil, page: nil)), class: admin_tab_on?(@category.blank?)

@@ -86,11 +86,6 @@ module Admin
       end
     end
 
-    def rewrite_all
-      Posts::RewriteAllJob.perform_later
-      back_to_posts 'AI rewrite queued for new posts'
-    end
-
     def regenerate
       if @post.manual?
         redirect_to edit_admin_post_path(@post), alert: 'Manual posts are not sent to AI'

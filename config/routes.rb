@@ -28,7 +28,6 @@ Rails.application.routes.draw do
       post :rewrite, on: :member
       post :publish, on: :member
       post :hide, on: :member
-      post :rewrite_all, on: :collection
       post :regenerate, on: :member
     end
     resources :events, only: %i[index show] do

@@ -79,6 +79,31 @@
   background: var(--red);
 }
 
+.masthead__admin {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.1rem;
+  height: 2.1rem;
+  margin-left: auto;
+  color: #444;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: #fff;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.masthead__admin:hover {
+  color: var(--red);
+  border-color: #ccc;
+}
+
+.masthead__admin-icon {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
 .breaking {
   display: grid;
   grid-template-columns: auto 1fr auto;
