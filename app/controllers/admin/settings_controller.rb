@@ -30,8 +30,16 @@ module Admin
     private
 
     def setting_params
-      permitted = params.require(:site_setting).permit(:google_sheets_service_account_json)
+      permitted = params.require(:site_setting).permit(
+        :google_sheets_service_account_json,
+        :autoria_api_secret,
+        :google_client_id,
+        :google_client_secret,
+        :google_redirect_uri
+      )
       permitted.delete(:google_sheets_service_account_json) if permitted[:google_sheets_service_account_json].blank?
+      permitted.delete(:autoria_api_secret) if permitted[:autoria_api_secret].blank?
+      permitted.delete(:google_client_secret) if permitted[:google_client_secret].blank?
       permitted
     end
   end

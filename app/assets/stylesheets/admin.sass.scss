@@ -609,8 +609,44 @@ a.admin__list-name:hover {
   margin-bottom: 0.35rem;
 }
 
+.admin__input {
+  max-width: 100%;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
+
+.admin__inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.admin__dl {
+  display: grid;
+  grid-template-columns: minmax(10rem, 14rem) 1fr;
+  gap: 0.5rem 1.2rem;
+  margin: 0;
+}
+
+.admin__dl dt {
+  margin: 0;
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.admin__dl dd {
+  margin: 0;
+}
+
 @media (max-width: 800px) {
   .admin {
+    grid-template-columns: 1fr;
+  }
+
+  .admin__dl {
     grid-template-columns: 1fr;
   }
 

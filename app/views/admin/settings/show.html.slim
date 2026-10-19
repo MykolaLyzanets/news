@@ -1,5 +1,32 @@
 h1.admin__h Settings
 
+= form_with model: @setting, url: admin_settings_path, method: :patch, class: 'admin__form' do |f|
+  - if @setting.errors.any?
+    ul.admin__bad
+      - @setting.errors.full_messages.each do |msg|
+        li = msg
+
+  h2.admin__h Autoria — YouTube upload
+  p.admin__hint
+    | Спільний secret має збігатися з полем «Спільний API secret» у Налаштуваннях autoria (Keys). ENV не потрібен.
+  label
+    span API secret (autoria ↔ news)
+    = f.text_field :autoria_api_secret, value: @setting.autoria_api_secret, autocomplete: 'off'
+  h3.admin__h Google OAuth (за замовчуванням для YouTube)
+  p.admin__hint
+    | Redirect URI у Google Cloud:
+    strong = Youtube::Config.redirect_uri
+  label
+    span Google Client ID
+    = f.text_field :google_client_id, autocomplete: 'off'
+  label
+    span Google Client Secret
+    = f.password_field :google_client_secret, value: '', autocomplete: 'new-password', placeholder: (@setting.google_oauth_configured? ? 'Secret збережено — введіть лише для заміни' : '')
+  label
+    span Redirect URI (опційно)
+    = f.text_field :google_redirect_uri, placeholder: Youtube::Config.redirect_uri, autocomplete: 'off'
+  = f.submit 'Save Autoria / YouTube keys', class: 'admin__btn'
+
 h2.admin__h Google Sheets — News link
 p.admin__hint
   | Вкладка
@@ -7,10 +34,6 @@ p.admin__hint
   | : колонка A — дата й час, B — повна URL. Нові публікації додаються автоматично.
 
 = form_with model: @setting, url: admin_settings_path, method: :patch, class: 'admin__form' do |f|
-  - if @setting.errors.any?
-    ul.admin__bad
-      - @setting.errors.full_messages.each do |msg|
-        li = msg
   label
     span Service account JSON (ключ із Google Cloud)
     - json_placeholder = @setting.google_sheets_service_account_json.present? ? 'JSON already saved — paste only to replace' : '{ "type": "service_account", "client_email": "...", ... }'

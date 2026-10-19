@@ -1,0 +1,83 @@
+.admin__head
+  .admin__head-copy
+    h1.admin__h YouTube канали (Autoria)
+    p.admin__muted Окремий OAuth-токен на кожен канал. Мітка «бренди» — як у правилах на autoria.
+  .admin__head-actions
+    = link_to 'Історія upload', admin_autoria_youtube_uploads_path, class: 'admin__btn admin__btn--ghost'
+    = link_to 'Settings', admin_settings_path, class: 'admin__btn admin__btn--ghost'
+
+p.admin__hint
+  | OAuth callback:
+  code = Youtube::Config.redirect_uri
+  |  · Autoria connection ID — число з вкладки YouTube канали на autoria. Після першого upload бренди можуть підтягнутись автоматично з autoria.
+
+.admin__panel style="margin-bottom: 1.5rem;"
+  h2.admin__h Підключити новий канал
+  = form_with url: youtube_oauth_connect_path, method: :post, local: true, class: 'admin__form' do
+    label
+      span Autoria connection ID
+      input type="number" name="autoria_youtube_connection_id" required=true
+    label
+      span Бренди (для мітки на news)
+      input type="text" name="brand_labels" placeholder="Наприклад: Porsche, Bmw або Default"
+      p.admin__hint Скопіюйте з autoria: правила брендів + default для цього connection id.
+    - if SiteSetting.current.google_oauth_configured?
+      p.admin__hint Google OAuth з Admin → Settings (поля нижче можна не заповнювати).
+    label
+      span Google Client ID (опційно)
+      input type="text" name="google_client_id"
+    label
+      span Google Client Secret (опційно)
+      input type="password" name="google_client_secret"
+    label
+      span Redirect URI (опційно)
+      input type="text" name="google_redirect_uri" value=Youtube::Config.redirect_uri
+    = submit_tag 'Підключити YouTube OAuth', class: 'admin__btn'
+
+- if @connections.empty?
+  p.admin__empty Ще немає каналів — підключіть перший OAuth вище.
+- else
+  .admin__panel
+    table.admin__table
+      thead
+        tr
+          th Бренди / мітка
+          th YouTube канал
+          th Autoria ID
+          th OAuth / токен
+          th
+      tbody
+        - @connections.each do |c|
+          tr
+            td
+              = form_with model: c, url: admin_youtube_connection_path(c), method: :patch, local: true, class: 'admin__inline-form' do |f|
+                = f.text_field :brand_labels, class: 'admin__input', placeholder: 'Bmw, Porsche…'
+                = f.submit 'Зберегти', class: 'admin__btn admin__btn--ghost admin__btn--small'
+              - if c.brand_labels_list.any?
+                p.admin__meta = c.brand_labels_list.join(' · ')
+            td
+              p.admin__title = c.display_name
+              - if c.channel_id.present?
+                p.admin__meta
+                  code = c.channel_id
+                  = link_to 'Відкрити', "https://www.youtube.com/channel/#{c.channel_id}", target: '_blank', rel: 'noopener', class: 'admin__btn admin__btn--ghost admin__btn--small'
+              - if c.last_error.present?
+                p.admin__meta title=c.last_error = c.last_error.truncate(80)
+            td
+              = form_with model: c, url: admin_youtube_connection_path(c), method: :patch, local: true, class: 'admin__inline-form' do |f|
+                = f.number_field :autoria_youtube_connection_id, class: 'admin__input'
+                = f.submit 'ID', class: 'admin__btn admin__btn--ghost admin__btn--small'
+              - if c.autoria_channel_title.present? && c.channel_title.present? && c.autoria_channel_title != c.channel_title
+                p.admin__meta autoria: #{c.autoria_channel_title}
+            td
+              span.admin__badge class=c.token_status_badge_class = c.token_status_label_ua
+              - if c.connected_at
+                p.admin__meta з #{l(c.connected_at, format: :short)}
+              - if c.google_client_id.present?
+                p.admin__meta OAuth app: …#{c.google_client_id.to_s.last(12)}
+            td.admin__actions
+              = form_with url: youtube_oauth_connect_path, method: :post, local: true do
+                = hidden_field_tag :youtube_connection_id, c.id
+                = hidden_field_tag :autoria_youtube_connection_id, c.autoria_youtube_connection_id
+                = hidden_field_tag :brand_labels, c.brand_labels
+                = submit_tag 'Перепідключити', class: 'admin__btn admin__btn--small'

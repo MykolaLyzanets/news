@@ -1,0 +1,82 @@
+.admin__head
+  .admin__head-copy
+    h1.admin__h Autoria → YouTube
+    p.admin__muted Історія завантажень з autoria. У черзі / в процесі: #{@total_in_progress}
+  .admin__head-actions
+    = link_to 'YouTube канали', admin_youtube_connections_path, class: 'admin__btn admin__btn--ghost'
+    = link_to 'Settings', admin_settings_path, class: 'admin__btn admin__btn--ghost'
+
+.admin__cards
+  - AutoriaYoutubeUpload::STATUSES.each do |st|
+    .admin__card
+      p = AutoriaYoutubeUpload.new(status: st).status_label_ua
+      strong = @status_counts[st] || 0
+
+nav.admin__tabs
+  = link_to admin_autoria_youtube_uploads_path(status: nil, page: nil), class: ('is-on' if params[:status].blank?)
+    | Усі
+    span.admin__tab-n = @status_counts.values.sum
+  = link_to admin_autoria_youtube_uploads_path(status: 'in_progress', page: nil), class: ('is-on' if params[:status] == 'in_progress')
+    | В процесі
+    span.admin__tab-n = @total_in_progress
+  = link_to admin_autoria_youtube_uploads_path(status: 'published', page: nil), class: ('is-on' if params[:status] == 'published')
+    | Опубліковано
+    span.admin__tab-n = @status_counts['published'] || 0
+  = link_to admin_autoria_youtube_uploads_path(status: 'failed', page: nil), class: ('is-on' if params[:status] == 'failed')
+    | Помилки
+    span.admin__tab-n = @status_counts['failed'] || 0
+
+.admin__toolbar
+  p.admin__muted
+    - if @total.zero?
+      | Записів немає
+    - else
+      | #{((@page - 1) * @per_page) + 1}–#{[((@page - 1) * @per_page) + @uploads.size, @total].min} з #{@total}
+
+.admin__panel
+  - if @uploads.empty?
+    p.admin__empty Ще не було завантажень з autoria або фільтр порожній.
+  - else
+    table.admin__table
+      thead
+        tr
+          th Час
+          th Відео
+          th Канал
+          th Статус
+          th YouTube
+          th
+      tbody
+        - @uploads.each do |upload|
+          tr
+            td
+              p.admin__meta = l(upload.created_at, format: :short)
+              - if upload.updated_at != upload.created_at
+                p.admin__meta оновлено #{l(upload.updated_at, format: :short)}
+            td
+              p.admin__title = upload.title.truncate(80)
+              p.admin__meta
+                | video ##{upload.autoria_vehicle_video_id}
+                |  · job #{upload.job_id.to_s.first(8)}…
+            td
+              p.admin__meta = upload.channel_label
+              p.admin__meta autoria conn. #{upload.autoria_youtube_connection_id}
+            td
+              span.admin__badge class=upload.status_badge_class = upload.status_label_ua
+              - if upload.error_message.present?
+                p.admin__meta title=upload.error_message = upload.error_message.truncate(60)
+            td
+              - if upload.youtube_watch_url
+                = link_to upload.youtube_video_id, upload.youtube_watch_url, target: '_blank', rel: 'noopener', class: 'admin__btn admin__btn--ghost admin__btn--small'
+              - else
+                span.admin__muted —
+            td.admin__actions
+              = link_to 'Деталі', admin_autoria_youtube_upload_path(upload), class: 'admin__btn admin__btn--ghost admin__btn--small'
+
+- if @pages > 1
+  nav.admin__pager
+    - if @page > 1
+      = link_to '← Назад', admin_autoria_youtube_uploads_path(status: params[:status], page: @page - 1), class: 'admin__btn admin__btn--ghost admin__btn--small'
+    span.admin__muted Сторінка #{@page} / #{@pages}
+    - if @page < @pages
+      = link_to 'Далі →', admin_autoria_youtube_uploads_path(status: params[:status], page: @page + 1), class: 'admin__btn admin__btn--ghost admin__btn--small'

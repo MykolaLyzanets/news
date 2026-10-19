@@ -11,8 +11,17 @@ Rails.application.routes.draw do
     mount Sidekiq::Web => '/sidekiq'
   end
 
+  post 'internal/autoria/youtube_uploads', to: 'internal/autoria/youtube_uploads#create'
+
+  namespace :youtube do
+    post 'oauth/connect', to: 'oauth#connect', as: :oauth_connect
+    get 'oauth/callback', to: 'oauth#callback', as: :oauth_callback
+  end
+
   namespace :admin do
     root to: 'home#index'
+    resources :youtube_connections, only: %i[index update]
+    resources :autoria_youtube_uploads, only: %i[index show]
     resource :settings, only: %i[show update] do
       post :sync_news_links
     end
@@ -65,6 +74,8 @@ Rails.application.routes.draw do
     path = req.path
     path.exclude?('uploads') &&
       !path.start_with?('/rails/') &&
-      !path.start_with?('/assets/')
+      !path.start_with?('/assets/') &&
+      !path.start_with?('/internal/') &&
+      !path.start_with?('/youtube/')
   }
 end

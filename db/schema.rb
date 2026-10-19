@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_09_25_120000) do
+ActiveRecord::Schema[7.0].define(version: 2026_10_19_170000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -40,6 +40,30 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_25_120000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "autoria_youtube_uploads", force: :cascade do |t|
+    t.uuid "job_id", null: false
+    t.bigint "autoria_vehicle_video_id", null: false
+    t.bigint "autoria_youtube_connection_id", null: false
+    t.bigint "youtube_connection_id"
+    t.string "status", default: "pending", null: false
+    t.string "youtube_video_id"
+    t.text "error_message"
+    t.string "video_url", null: false
+    t.string "title", null: false
+    t.text "description"
+    t.jsonb "tags", default: [], null: false
+    t.string "privacy_status", null: false
+    t.string "category_id", null: false
+    t.string "callback_url", null: false
+    t.integer "poll_attempts", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["autoria_vehicle_video_id", "autoria_youtube_connection_id"], name: "index_autoria_yt_uploads_on_video_and_connection"
+    t.index ["job_id"], name: "index_autoria_youtube_uploads_on_job_id", unique: true
+    t.index ["status"], name: "index_autoria_youtube_uploads_on_status"
+    t.index ["youtube_connection_id"], name: "index_autoria_youtube_uploads_on_youtube_connection_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -138,6 +162,10 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_25_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "google_sheets_service_account_json"
+    t.text "encrypted_autoria_api_secret"
+    t.string "google_client_id"
+    t.text "encrypted_google_client_secret"
+    t.string "google_redirect_uri"
   end
 
   create_table "source_articles", force: :cascade do |t|
@@ -215,8 +243,30 @@ ActiveRecord::Schema[7.0].define(version: 2026_09_25_120000) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  create_table "youtube_connections", force: :cascade do |t|
+    t.string "channel_id"
+    t.string "channel_title"
+    t.text "encrypted_refresh_token"
+    t.text "encrypted_access_token"
+    t.datetime "access_token_expires_at"
+    t.datetime "connected_at"
+    t.string "status", default: "disconnected", null: false
+    t.text "last_error"
+    t.string "google_client_id"
+    t.text "encrypted_google_client_secret"
+    t.string "google_redirect_uri"
+    t.bigint "autoria_youtube_connection_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "brand_labels"
+    t.string "autoria_channel_title"
+    t.index ["autoria_youtube_connection_id"], name: "index_youtube_connections_on_autoria_youtube_connection_id", unique: true, where: "(autoria_youtube_connection_id IS NOT NULL)"
+    t.index ["channel_id"], name: "index_youtube_connections_on_channel_id", unique: true, where: "(channel_id IS NOT NULL)"
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "autoria_youtube_uploads", "youtube_connections"
   add_foreign_key "event_topics", "events"
   add_foreign_key "event_topics", "topics"
   add_foreign_key "events", "categories"

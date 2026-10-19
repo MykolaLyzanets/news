@@ -1,0 +1,49 @@
+.admin__head
+  .admin__head-copy
+    h1.admin__h Деталі завантаження
+    p.admin__muted = @upload.title
+  .admin__head-actions
+    = link_to '← Історія', admin_autoria_youtube_uploads_path, class: 'admin__btn admin__btn--ghost'
+
+.admin__panel
+  dl.admin__dl
+    dt Статус
+    dd
+      span.admin__badge class=@upload.status_badge_class = @upload.status_label_ua
+    dt Створено
+    dd = l(@upload.created_at, format: :long)
+    dt Оновлено
+    dd = l(@upload.updated_at, format: :long)
+    dt Канал (news)
+    dd = @upload.channel_label
+    dt Autoria connection ID
+    dd = @upload.autoria_youtube_connection_id
+    dt Autoria vehicle video ID
+    dd = @upload.autoria_vehicle_video_id
+    dt Job ID
+    dd
+      code = @upload.job_id
+    dt Privacy / category
+    dd = "#{@upload.privacy_status} / #{@upload.category_id}"
+    - if @upload.tags.present?
+      dt Tags
+      dd = @upload.tags.join(', ')
+    dt Callback URL
+    dd
+      code = @upload.callback_url
+    - if @upload.youtube_video_id.present?
+      dt YouTube
+      dd
+        = link_to @upload.youtube_watch_url, @upload.youtube_watch_url, target: '_blank', rel: 'noopener'
+    - if @upload.poll_attempts.positive?
+      dt Poll attempts
+      dd = @upload.poll_attempts
+    - if @upload.error_message.present?
+      dt Помилка
+      dd.admin__bad = @upload.error_message
+    dt Video URL (autoria)
+    dd
+      code style="word-break: break-all;" = @upload.video_url
+    - if @upload.description.present?
+      dt Опис
+      dd style="white-space: pre-wrap;" = @upload.description
