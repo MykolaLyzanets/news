@@ -29,7 +29,7 @@ module Internal
           status: 'pending'
         )
 
-        Autoria::ProcessYoutubeUploadJob.perform_later(upload.id)
+        ::Autoria::ProcessYoutubeUploadJob.perform_later(upload.id)
         render json: { job_id: upload.job_id, status: 'accepted' }, status: :accepted
       rescue ActiveRecord::RecordNotUnique
         render json: { error: 'duplicate job_id' }, status: :conflict
@@ -44,7 +44,7 @@ module Internal
       def verify_signature!
         body = request.raw_post
         signature = request.headers['X-Autoria-Signature']
-        Autoria::ApiSecret.verify!(body, signature)
+        ::Autoria::ApiSecret.verify!(body, signature)
       end
 
       def resolve_connection(payload)
